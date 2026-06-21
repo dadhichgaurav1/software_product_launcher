@@ -105,11 +105,9 @@ class MockProvider(LLMProvider):
         site: LaunchSite,
         best_practices: list[str],
     ) -> str:
-        value = self._value_for(question, product, site)
-        value = _clean(value)
-        if question.max_length and len(value) > question.max_length:
-            value = value[: question.max_length].rsplit(" ", 1)[0].rstrip(",.;:")
-        return value
+        # Return the natural value; length fitting (to the platform's limit) is
+        # applied downstream by the generator so it happens at a clean boundary.
+        return _clean(self._value_for(question, product, site))
 
     def complete(self, system: str, user: str, max_tokens: int = 512) -> str:
         # Deterministic: return the first few sentences of the user content.

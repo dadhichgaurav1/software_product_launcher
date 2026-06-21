@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 
+from ..answers.fit import fit_text
 from ..config import settings
 from ..models import LaunchSite, Product, Question, ScannedPage
 from .base import LLMProvider
@@ -71,16 +72,24 @@ class OpenAIProvider(LLMProvider):
         best_practices: list[str],
     ) -> str:
         bp = "\n".join(f"- {b}" for b in best_practices) or "- Be clear and specific."
+        if question.max_length:
+            limit = (
+                f"HARD LIMIT: the answer MUST be at most {question.max_length} characters "
+                f"(this is the '{site.name}' field limit). Write a COMPLETE phrase that fits "
+                f"within the limit — do NOT exceed it and do NOT return a cut-off fragment."
+            )
+        else:
+            limit = "Keep it appropriately concise for this field."
         system = (
             f"You are an expert at writing high-converting launch submissions for "
-            f"{site.name} ({site.url}). Write the answer for one field. Follow the "
-            f"platform best-practices. Be concise and respect any max length. "
-            f"Output ONLY the answer text, no preamble."
+            f"{site.name} ({site.url}). Write the answer for ONE field, following the "
+            f"platform best-practices and respecting the field's length limit exactly. "
+            f"Output ONLY the answer text, no preamble, no quotes."
         )
         user = (
             f"PRODUCT JSON:\n{product.model_dump_json(exclude={'raw_pages'})}\n\n"
-            f"FIELD: {question.label} (id={question.id}, type={question.type}"
-            f"{', max ' + str(question.max_length) + ' chars' if question.max_length else ''})\n"
+            f"FIELD: {question.label} (id={question.id}, type={question.type})\n"
+            f"{limit}\n"
             f"FIELD HELP: {question.help}\n\n"
             f"BEST PRACTICES for {site.name}:\n{bp}\n"
         )
@@ -93,9 +102,9 @@ class OpenAIProvider(LLMProvider):
                     {"role": "user", "content": user},
                 ],
             )
-            text = (resp.choices[0].message.content or "").strip()
-            if question.max_length and len(text) > question.max_length:
-                text = text[: question.max_length].rsplit(" ", 1)[0]
+            text = (resp.choices[0].message.content or "").strip().strip('"')
+            # Smart fit as a safety net; the generator also fits + flags truncation.
+            text, _ = fit_text(text, question.max_length)
             return text or self._fallback.generate_answer(
                 question=question, product=product, site=site, best_practices=best_practices
             )

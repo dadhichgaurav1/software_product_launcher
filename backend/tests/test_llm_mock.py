@@ -42,7 +42,8 @@ def test_analyze_extracts_core_fields():
     assert data["social_links"].get("twitter") == "https://twitter.com/acme"
 
 
-def test_generate_answer_respects_max_length():
+def test_generate_answer_returns_natural_value():
+    # The mock returns the natural value; length fitting happens in the generator.
     data = MockProvider().analyze_product("https://acme.dev", sample_pages())
     product = Product(url="https://acme.dev", canonical_url="https://acme.dev", **{
         k: v for k, v in data.items() if k != "features"
@@ -53,8 +54,8 @@ def test_generate_answer_respects_max_length():
     ans = MockProvider().generate_answer(
         question=q, product=product, site=site, best_practices=["Be concise"]
     )
-    assert len(ans) <= 20
     assert ans, "tagline answer should be non-empty"
+    assert ans == product.tagline
 
 
 def test_url_field_fallback():

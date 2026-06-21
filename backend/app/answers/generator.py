@@ -12,6 +12,7 @@ from ..llm.base import LLMProvider
 from ..llm.factory import get_provider
 from ..models import Answer, AnswerSet, FillStep, LaunchSite, Product, Question
 from .best_practices import get_best_practices
+from .fit import fit_text
 
 log = logging.getLogger(__name__)
 
@@ -59,10 +60,12 @@ class AnswerGenerator:
 
     # ------------------------------------------------------------------
     def _handle_field(self, q: Question, product: Product, site: LaunchSite, practices):
-        value = self.provider.generate_answer(
+        raw = self.provider.generate_answer(
             question=q, product=product, site=site, best_practices=practices
         )
-        truncated = bool(q.max_length and value and len(value) >= q.max_length)
+        # Length fitting is centralised here so the `truncated` flag is accurate
+        # and shortening always happens at a natural boundary (not mid-word).
+        value, truncated = fit_text(raw, q.max_length)
         source = "product" if q.maps_to else "best_practice"
         answer = Answer(
             question_id=q.id,
