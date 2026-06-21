@@ -63,8 +63,9 @@ the build goal.
    (2–3 fallbacks per field). Recommended next step: a calibration pass that opens
    each site, records the real DOM selectors, and updates the registry JSON.
 
-7. **Extension icons.** Placeholder note in `extension/icons/`; Chrome shows a
-   default icon until real PNGs are added.
+7. **Extension icons.** ✅ Real PNG icons (16/48/128) are generated and committed
+   in `extension/icons/` (Chrome refuses to load the manifest if a referenced icon
+   is missing). Regenerate or swap them per `extension/icons/README.md`.
 
 ## Extending
 
