@@ -1,0 +1,90 @@
+Requirements:
+
+You are creating a product that is agentic in nature and comprises of chrome extension + web-page + backend. 
+
+The extension is to be used for all browser-based tasks. 
+
+The webpage / server is used for all backend activities including running the agent itself.
+
+Assume the LLM API key to be present from OpenAI family of models.
+
+It can be run locally by the developer on their machine or can be hosted. 
+
+
+
+The webpage takes as input the URL of a software product's website (or a specific product's URL); scans the website fully, understands the product, positioning, ICP, Target Group, product features, benefits, etc.
+
+
+
+It also extracts assets if present: Logo of product / company, image assets, video assets, etc. 
+
+
+
+Then uses the list of below launch websites which it already understands (while building, we need to create a master list of questions from each of these)  all the questions of and fills the questions:
+
+https://launchpadindia.co/ 
+
+https://betalist.com — pre-launch / beta, waitlist building
+
+https://www.uneed.best — daily newsletter, indie + maker audience
+
+https://peerlist.io/launchpad — weekly launch, do-follow link, tech crowd
+
+https://fazier.com — strong for AI-first and SaaS products
+
+https://devhunt.org — developer tools, libraries, APIs
+
+https://news.ycombinator.com/show — Show HN, technical audience, no fee
+
+https://microlaunch.net — micro-SaaS, month-long ranking window
+
+https://smollaunch.com — weekly ranking, do-follow listings, indie
+
+https://tinystartups.com — tiny startups, maker projects
+
+https://tinylaunch.com — lightweight indie launches (your reference)
+
+https://startupbase.io — ongoing startup discovery + launch
+
+https://www.indiehackers.com — community-driven, build-in-public
+
+https://www.launchingnext.com — long-lived directory listing
+
+https://openhunts.com — open ProductHunt-style alternative
+
+https://firsto.co — visibility for every maker, not just top-voted
+
+https://pitchwall.co — startup pitch + launch board
+
+https://launchigniter.com — launch + SEO backlink value
+
+https://saashub.com — B2B SaaS discovery, long-term listing
+
+https://alternativeto.net — post-launch discoverability via alternatives
+
+
+
+Creates an account using web with the default gmail account logged in by that user >> if account exists, great; if not, creates one. 
+
+Then fills up all the fields it can fill, in the browser and keeps it ready for the user to manually review and submit. 
+
+Optionally, user can select on the web-page, which ones from this list they want to launch on. 
+
+
+
+Once a product's details are extracted, they are stored in a well-structured JSON on the server; and repurposed if incremental launches are being done later, with the same URL. User should also have an option to force refresh that should rewrite the JSON (incase the website has been updated). 
+
+
+
+Then responses for each question are collected based on best-practices of answering for that platform (Search communities/ web blogs as well as launch-site's own website for best practices). 
+
+
+
+Figure out the right sequence of execution from this. 
+
+
+
+
+
+
+
