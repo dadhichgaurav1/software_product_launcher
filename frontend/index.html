@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Software Product Launcher</title>
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🚀</span>
+      <div>
+        <h1>Software Product Launcher</h1>
+        <p class="sub">Scan a product, understand it, and prep submissions across 20 launch sites.</p>
+      </div>
+    </div>
+    <div class="status" id="provider-badge" title="Active LLM provider">…</div>
+  </header>
+
+  <main>
+    <!-- Step 1: Scan -->
+    <section class="card" id="scan-card">
+      <h2><span class="step">1</span> Scan a product website</h2>
+      <div class="row">
+        <input type="url" id="url" placeholder="https://yourproduct.com" autocomplete="off" />
+        <label class="check"><input type="checkbox" id="force" /> Force refresh</label>
+        <button id="scan-btn" class="primary">Scan &amp; Understand</button>
+      </div>
+      <div class="hint" id="scan-status"></div>
+      <div class="recent" id="recent"></div>
+    </section>
+
+    <!-- Step 2: Product understanding -->
+    <section class="card hidden" id="product-card">
+      <h2><span class="step">2</span> Product understanding
+        <span class="pill" id="product-version"></span>
+        <span class="pill alt" id="product-source"></span>
+      </h2>
+      <div class="product-grid">
+        <div class="product-main" id="product-main"></div>
+        <aside class="assets" id="assets"></aside>
+      </div>
+    </section>
+
+    <!-- Step 3: Select launch sites -->
+    <section class="card hidden" id="sites-card">
+      <h2><span class="step">3</span> Choose launch sites</h2>
+      <div class="row tools">
+        <input type="search" id="site-filter" placeholder="Filter by name or tag…" />
+        <button id="select-all" class="ghost">Select all</button>
+        <button id="select-none" class="ghost">Clear</button>
+        <span class="count" id="selected-count">0 selected</span>
+      </div>
+      <div class="sites-grid" id="sites-grid"></div>
+      <div class="row">
+        <button id="generate-btn" class="primary">Generate answers for selected</button>
+        <span class="hint" id="generate-status"></span>
+      </div>
+    </section>
+
+    <!-- Step 4: Review answers -->
+    <section class="card hidden" id="answers-card">
+      <h2><span class="step">4</span> Review &amp; fill</h2>
+      <p class="hint">Answers follow each platform's best-practices. Review here, then use the
+        Chrome extension on each site to auto-fill the form and submit manually.</p>
+      <div id="answers"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Local-first agentic launcher · <a href="/docs" target="_blank">API docs</a></span>
+    <span id="health-foot"></span>
+  </footer>
+
+  <script src="/app/app.js"></script>
+</body>
+</html>
