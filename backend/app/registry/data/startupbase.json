@@ -1,0 +1,50 @@
+{
+  "id": "startupbase",
+  "name": "StartupBase",
+  "url": "https://startupbase.io",
+  "submit_url": "https://startupbase.io/submit",
+  "description": "An ongoing startup discovery platform and launch directory where founders list their products for early adopters and feedback. The audience is founders, makers and people hunting for new startups.",
+  "tags": ["startup-directory", "discovery", "launch", "early-adopters", "makers"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://startupbase.io/signup",
+    "login_url": "https://startupbase.io/login",
+    "notes": "Register with email/password (social login commonly offered). A free listing is permanent; a Pro/featured tier adds placement, a do-follow link and a badge."
+  },
+  "best_practices": [
+    "Treat the listing as evergreen, not a one-day spike — write copy that still reads well months from now.",
+    "Make the tagline specific and outcome-focused so it stands out when browsers scan the discovery feed.",
+    "Fill out every optional field (categories, tags, social) — completeness improves how the listing ranks and gets surfaced.",
+    "Pick the most accurate primary category so the right early-adopter audience finds you.",
+    "Use a clean square logo that is legible at small sizes across the directory.",
+    "Write a benefit-led description that names the problem and the user, then keep your profile updated as the product evolves."
+  ],
+  "questions": [
+    {"id": "name", "label": "Startup name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#name", "#startup_name"]},
+    {"id": "tagline", "label": "Tagline / pitch", "type": "text", "maps_to": "tagline", "required": true, "max_length": 80,
+     "help": "One sentence: what it is and who it's for.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='pitch']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "#url", "input[name='website']"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 600,
+     "help": "What the product does, the problem it solves, and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "help": "Pick the primary category that best fits.",
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file']", "#logo"]},
+    {"id": "maker_name", "label": "Your name", "type": "text", "maps_to": "maker_name", "required": false,
+     "selectors": ["input[name='maker_name']", "#maker_name", "input[name='name_maker']"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

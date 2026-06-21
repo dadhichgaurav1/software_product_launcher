@@ -1,0 +1,53 @@
+{
+  "id": "firsto",
+  "name": "Firsto",
+  "url": "https://firsto.co",
+  "submit_url": "https://firsto.co/submit",
+  "description": "Product Hunt-style launch platform built to give every maker visibility rather than only the top-voted few; audience is indie makers and founders who want a fair shot at exposure.",
+  "tags": ["product-hunt-alternative", "launch", "makers", "fair-visibility", "directory"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://firsto.co/signup",
+    "login_url": "https://firsto.co/login",
+    "notes": "Free email/password account to submit and manage products. Every listing gets visibility regardless of vote count; paid options may add featured placement."
+  },
+  "best_practices": [
+    "Firsto promises visibility to every maker, so focus on a complete, polished listing rather than only chasing votes.",
+    "Lead with a clear tagline that states the core benefit; it is what readers see in the feed and on shared cards.",
+    "Fill in every field and add rich media, since well-rounded profiles get surfaced longer on a fair-exposure platform.",
+    "Choose precise topics/tags so your product lands in the niches where it actually competes.",
+    "Upload a clean square logo and 2-3 screenshots that show the product, not just a landing page.",
+    "Write an authentic maker first comment explaining the problem you solve and what feedback helps you most.",
+    "Add your maker name and Twitter/X so the community can follow you across launches."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 60,
+     "help": "One punchy line stating the core benefit.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": true, "max_length": 280,
+     "help": "Short summary of what it does and who it helps.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "topics", "label": "Topics / tags", "type": "tags", "maps_to": "topics_tags", "required": true,
+     "help": "Pick the niches your product belongs to.",
+     "selectors": ["input[name='topics']", "#topics", "input[name='tags']"]},
+    {"id": "logo", "label": "Logo / thumbnail", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo", "input[type='file']"]},
+    {"id": "gallery", "label": "Gallery images", "type": "file", "maps_to": null, "required": false,
+     "help": "Screenshots or a GIF showing the product.",
+     "selectors": ["input[type='file'][name='gallery']", "#gallery", "input[type='file'][multiple]"]},
+    {"id": "first_comment", "label": "First comment (maker note)", "type": "textarea", "maps_to": null, "required": false,
+     "help": "Explain why you built it and the feedback you want.",
+     "selectors": ["textarea[name='comment']", "#first-comment", "textarea[name='maker_comment']"]},
+    {"id": "maker_name", "label": "Your name", "type": "text", "maps_to": "maker_name", "required": false,
+     "selectors": ["input[name='maker_name']", "#maker-name", "input[name='author']"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter", "input[name='x']"]}
+  ]
+}

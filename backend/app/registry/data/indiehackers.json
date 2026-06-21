@@ -1,0 +1,49 @@
+{
+  "id": "indiehackers",
+  "name": "Indie Hackers",
+  "url": "https://www.indiehackers.com",
+  "submit_url": "https://www.indiehackers.com/products/new",
+  "description": "A community for founders building profitable, often bootstrapped businesses in public. You create a Product page and share progress through posts and milestones with an audience of indie makers and founders.",
+  "tags": ["indie-hackers", "build-in-public", "bootstrapped", "community", "founders"],
+  "fee": "free",
+  "do_follow": false,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://www.indiehackers.com/sign-up",
+    "login_url": "https://www.indiehackers.com/sign-in",
+    "notes": "Sign up with email/password or Google. After creating a personal account you add a Product page; you can also post updates and milestones from the product."
+  },
+  "best_practices": [
+    "Lead with the build-in-public angle — share real numbers (revenue, users, growth) and lessons; the community values transparency over polish.",
+    "Write the tagline as a clear value statement a fellow founder would instantly understand.",
+    "Use the 'what it does' / description to explain the problem, your approach, and the business model, not just features.",
+    "Pick an accurate product category so the right makers discover and follow it.",
+    "Post a launch milestone (e.g. 'Launched!' or first revenue) — milestones surface in the community feed and drive engagement.",
+    "Engage genuinely in the forums and other makers' threads; reciprocity is how Indie Hackers visibility works.",
+    "Add a square logo and keep the product page updated as you hit new milestones."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 60,
+     "help": "A short, clear value statement.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='pitch']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "#url", "input[name='website']"]},
+    {"id": "description", "label": "What does it do?", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 600,
+     "help": "The problem, your approach, and how the business works.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": false,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags / topics", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": false,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file']", "#logo"]},
+    {"id": "milestone", "label": "Milestone / launch post", "type": "textarea", "maps_to": null, "required": false,
+     "help": "Optional build-in-public update, e.g. 'We launched!' with context and any metrics.",
+     "selectors": ["textarea[name='milestone']", "#milestone", "textarea[name='body']"]}
+  ]
+}

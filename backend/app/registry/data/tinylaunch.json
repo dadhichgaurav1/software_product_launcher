@@ -1,0 +1,47 @@
+{
+  "id": "tinylaunch",
+  "name": "TinyLaunch",
+  "url": "https://tinylaunch.com",
+  "submit_url": "https://tinylaunch.com/submit",
+  "description": "A lightweight launch platform for indie makers that features one product a day with minimal friction. The audience is indie hackers and early adopters looking for fresh, small launches.",
+  "tags": ["indie", "lightweight-launch", "makers", "daily-launch", "directory"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://tinylaunch.com/signup",
+    "login_url": "https://tinylaunch.com/login",
+    "notes": "Sign up with email/password (Google sign-in often offered). Listings are scheduled for a launch day; a paid skip-the-line option may be available."
+  },
+  "best_practices": [
+    "Keep it lightweight and honest — TinyLaunch favors quick, no-fuss launches over polished corporate pitches.",
+    "Nail a single-sentence tagline; the daily feature gives you one line to earn the click.",
+    "Pick the right launch day and be ready to share the link with your own audience that day to drive votes.",
+    "Use a crisp square logo/icon that stands out in a minimal, text-light layout.",
+    "Keep the description short and concrete — what it does and who it helps, no filler.",
+    "Link to a working landing page or live app; reviewers skip dead or placeholder links."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#name", "#product_name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 60,
+     "help": "One short, clear sentence about the product.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='pitch']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "#url", "input[name='website']"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": true, "max_length": 250,
+     "help": "Briefly: what it does and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": false,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter"]},
+    {"id": "logo", "label": "Logo / icon", "type": "file", "maps_to": null, "required": true,
+     "help": "Square icon, transparent PNG preferred.",
+     "selectors": ["input[type='file']", "#logo"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

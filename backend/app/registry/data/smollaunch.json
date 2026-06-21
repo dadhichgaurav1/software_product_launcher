@@ -1,0 +1,51 @@
+{
+  "id": "smollaunch",
+  "name": "SmolLaunch",
+  "url": "https://smollaunch.com",
+  "submit_url": "https://smollaunch.com/submit",
+  "description": "Indie-focused launch directory with a weekly ranking cycle and do-follow listings, helping small makers get discovered and earn SEO value alongside an early-adopter audience.",
+  "tags": ["indie", "weekly-ranking", "do-follow", "makers", "directory"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://smollaunch.com/sign-up",
+    "login_url": "https://smollaunch.com/login",
+    "notes": "Email/password account (social sign-in may be available) to submit and schedule a launch. Free listings get a do-follow link and join the weekly leaderboard; paid tiers add featured placement."
+  },
+  "best_practices": [
+    "SmolLaunch is for indie makers — keep the framing humble and authentic; the small-maker crowd dislikes corporate hype.",
+    "Listings are do-follow, so make the on-page copy keyword-relevant to your product to capture real SEO value from the backlink.",
+    "Ranking is weekly, so submit early in the week and rally your audience to vote while the cycle is open.",
+    "Write a tagline that says exactly what it does in plain words; specificity beats cleverness with this audience.",
+    "Mention if you're a solo or small bootstrapped team and share the story; this community engages with the people behind products.",
+    "Use a clean square logo and a screenshot or two so even a tiny product looks credible on the leaderboard.",
+    "Reply to comments on launch day to drive engagement and improve your weekly ranking."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "Plain words on exactly what it does.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "What it does, who it's for, and the maker story; keyword-relevant for the do-follow link.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='keywords']"]},
+    {"id": "pricing", "label": "Pricing", "type": "select", "maps_to": "pricing", "required": false,
+     "options": ["Free", "Freemium", "Paid", "Free Trial"],
+     "selectors": ["select[name='pricing']", "#pricing", "input[name='pricing']"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter", "input[name='x']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

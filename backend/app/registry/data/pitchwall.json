@@ -1,0 +1,52 @@
+{
+  "id": "pitchwall",
+  "name": "PitchWall",
+  "url": "https://pitchwall.co",
+  "submit_url": "https://pitchwall.co/submit",
+  "description": "Startup pitch and launch board where founders post their product alongside an elevator pitch and the community discovers, upvotes and gives feedback; audience is founders, indie hackers and early adopters.",
+  "tags": ["startup", "pitch", "launch-board", "founders", "feedback"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://pitchwall.co/signup",
+    "login_url": "https://pitchwall.co/login",
+    "notes": "Free email/password account to post a pitch and manage your listing. Social sign-in may be available; posts can be upvoted and commented on by the community."
+  },
+  "best_practices": [
+    "PitchWall is a pitch board, so nail the elevator pitch: state the problem, your solution and why now in a few tight sentences.",
+    "Open the pitch with a single sentence a non-expert investor could repeat; clarity of positioning drives upvotes here.",
+    "Make the tagline outcome-focused (what the user gains) rather than feature-focused.",
+    "Quantify traction or a sharp insight if you have it; this founder audience responds to evidence and momentum.",
+    "Pick the category that matches your market so the right founders and early adopters see the pitch.",
+    "Add a clean logo and a screenshot or demo link so people can quickly grasp the product.",
+    "Reply to feedback fast; engaged threads get pushed higher on the board."
+  ],
+  "questions": [
+    {"id": "name", "label": "Startup / product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#startup-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "One outcome-focused line on what users gain.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "elevator_pitch", "label": "Elevator pitch", "type": "textarea", "maps_to": "positioning", "required": true, "max_length": 600,
+     "help": "Problem, solution and why now, in a few tight sentences an investor could repeat.",
+     "selectors": ["textarea[name='pitch']", "#elevator-pitch", "textarea[name='elevator_pitch']"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": false, "max_length": 300,
+     "help": "Short summary of the product for the listing.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "selectors": ["select[name='category']", "#category", "input[name='category']"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='keywords']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo", "input[type='file']"]},
+    {"id": "demo", "label": "Demo / pitch video URL", "type": "url", "maps_to": null, "required": false,
+     "help": "Optional short demo or pitch video.",
+     "selectors": ["input[name='video']", "#video", "input[name='demo']"]},
+    {"id": "maker_name", "label": "Founder name", "type": "text", "maps_to": "maker_name", "required": false,
+     "selectors": ["input[name='founder']", "#founder-name", "input[name='maker_name']"]}
+  ]
+}

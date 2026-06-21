@@ -1,0 +1,53 @@
+{
+  "id": "microlaunch",
+  "name": "MicroLaunch",
+  "url": "https://microlaunch.net",
+  "submit_url": "https://microlaunch.net/submit",
+  "description": "Launch directory for micro-SaaS and indie products with a month-long ranking window, giving smaller products an extended chance to climb the leaderboard among makers and early adopters.",
+  "tags": ["micro-saas", "indie", "monthly-ranking", "makers", "bootstrapped"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://microlaunch.net/sign-up",
+    "login_url": "https://microlaunch.net/login",
+    "notes": "Email/password account (social sign-in may be available) to submit and schedule a launch. Free listings join the monthly leaderboard; paid tiers add featured slots and badges."
+  },
+  "best_practices": [
+    "MicroLaunch is built for micro-SaaS and indie products — embrace the small, focused niche rather than over-pitching scale.",
+    "Ranking runs over a month, so plan a sustained push: schedule for early in the month and keep nudging your audience across the window.",
+    "Update your listing during the month (new features, milestones) to stay fresh and keep collecting upvotes over the long window.",
+    "Write a tagline that names the narrow problem and the exact user; this crowd rewards sharp positioning over broad claims.",
+    "Be transparent about pricing — indie buyers here appreciate clear, honest, often affordable plans.",
+    "Use a clean square logo and a couple of screenshots so a small product still looks polished on the leaderboard.",
+    "Engage with comments and feedback throughout the month, not just on day one, since the window stays open."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "Name the narrow problem and the exact user.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "What the micro-SaaS does, the niche it serves and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='keywords']"]},
+    {"id": "pricing", "label": "Pricing", "type": "select", "maps_to": "pricing", "required": false,
+     "options": ["Free", "Freemium", "Paid", "Free Trial"],
+     "help": "Be clear and honest; this audience values transparent pricing.",
+     "selectors": ["select[name='pricing']", "#pricing", "input[name='pricing']"]},
+    {"id": "launch_date", "label": "Launch date", "type": "text", "maps_to": null, "required": false,
+     "help": "Schedule early in the month to maximise the ranking window.",
+     "selectors": ["input[name='launch_date']", "#launch-date", "input[type='date']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

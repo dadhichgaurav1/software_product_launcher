@@ -1,0 +1,51 @@
+{
+  "id": "peerlist",
+  "name": "Peerlist Launchpad",
+  "url": "https://peerlist.io/launchpad",
+  "submit_url": "https://peerlist.io/launchpad/submit",
+  "description": "Weekly product launch platform inside the Peerlist professional network for tech builders; offers do-follow links and a tech-savvy audience of engineers, designers and founders.",
+  "tags": ["weekly-launch", "tech", "do-follow", "professional-network", "builders"],
+  "fee": "free",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://peerlist.io/signup",
+    "login_url": "https://peerlist.io/login",
+    "notes": "Requires a Peerlist profile (sign up by email or social, then complete your profile). You launch under your account and the do-follow link is tied to a verified profile; launches run in weekly cycles."
+  },
+  "best_practices": [
+    "Peerlist's audience is professional tech builders — frame the launch around craft, the problem it solves and the stack, not hype.",
+    "Complete and polish your Peerlist profile before launching; the community trusts launches from people with a real presence on the network.",
+    "Write a tagline an engineer or designer would respect: specific, outcome-focused, no buzzwords.",
+    "Prepare a strong first comment / maker note explaining why you built it and what's new — it drives early engagement and upvotes.",
+    "Launches are weekly, so submit near the start of the cycle to maximise time collecting upvotes on the leaderboard.",
+    "Add clean product media (square logo plus a couple of UI shots or a short demo); this design-literate crowd notices polish.",
+    "Engage in the comments on launch day — replying to feedback lifts ranking and credibility here."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "One specific, outcome-focused line that tech builders will respect.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Product URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "What it does, the problem it solves and what's new; speak to a technical audience.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "categories", "label": "Categories", "type": "tags", "maps_to": "categories", "required": true,
+     "help": "Pick the categories that best fit your product.",
+     "selectors": ["input[name='categories']", "#categories", "select[name='categories']"]},
+    {"id": "github", "label": "GitHub / repo", "type": "url", "maps_to": "github", "required": false,
+     "selectors": ["input[name='github']", "input[name='repo']", "#github"]},
+    {"id": "first_comment", "label": "Maker's first comment", "type": "textarea", "maps_to": null, "required": false,
+     "help": "Why you built it and what's new; posted as the opening comment to spark discussion.",
+     "selectors": ["textarea[name='first_comment']", "#first-comment", "textarea[name='maker_note']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "media", "label": "Screenshots / media", "type": "file", "maps_to": null, "required": false,
+     "help": "UI screenshots or a short demo; polish matters to this design-literate crowd.",
+     "selectors": ["input[type='file'][name='media']", "#media", "input[type='file'][name='screenshots']"]}
+  ]
+}

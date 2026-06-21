@@ -1,0 +1,49 @@
+{
+  "id": "launchingnext",
+  "name": "Launching Next",
+  "url": "https://www.launchingnext.com",
+  "submit_url": "https://www.launchingnext.com/submit/",
+  "description": "A long-lived directory of hand-picked new and upcoming startups. The audience is early adopters, journalists and investors browsing for fresh products, and listings remain discoverable for the long term.",
+  "tags": ["startup-directory", "new-startups", "long-lived", "evergreen", "discovery"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "none",
+    "signup_url": "https://www.launchingnext.com/submit/",
+    "login_url": "https://www.launchingnext.com/submit/",
+    "notes": "No account required for the standard listing — you fill a public submission form and provide your email. A paid express/featured option skips the review queue and adds placement."
+  },
+  "best_practices": [
+    "Optimize for longevity — the listing stays up for years, so write a description that won't feel dated and avoid time-sensitive phrasing.",
+    "Fill out the long-form fields completely; Launching Next asks for both a short and a long description, and richer entries get approved and surfaced more.",
+    "Make the short description keyword-rich but readable, since it doubles as discovery/SEO text in the directory.",
+    "Choose the most accurate category so the right browsers and the topic pages find you.",
+    "Provide a working website and a Twitter handle; complete, verifiable links speed up manual review.",
+    "Use a clear product name and a square logo that reads well at small sizes in list view."
+  ],
+  "questions": [
+    {"id": "name", "label": "Startup name", "type": "text", "maps_to": "name", "required": true, "max_length": 60,
+     "selectors": ["input[name='name']", "#name", "#startup_name"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "#url", "input[name='website']"]},
+    {"id": "short_description", "label": "Short description", "type": "text", "maps_to": "description_short", "required": true, "max_length": 200,
+     "help": "One or two sentences summarizing the product; used in listings and search.",
+     "selectors": ["input[name='short_description']", "#short_description", "input[name='tagline']"]},
+    {"id": "long_description", "label": "Full description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "A fuller explanation of what it does, the problem, and who it's for.",
+     "selectors": ["textarea[name='description']", "#description", "textarea[name='long_description']"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter"]},
+    {"id": "logo", "label": "Logo / screenshot", "type": "file", "maps_to": null, "required": false,
+     "help": "Square logo or product screenshot.",
+     "selectors": ["input[type='file']", "#logo"]},
+    {"id": "maker_name", "label": "Your name", "type": "text", "maps_to": "maker_name", "required": false,
+     "selectors": ["input[name='your_name']", "#your_name", "input[name='maker_name']"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

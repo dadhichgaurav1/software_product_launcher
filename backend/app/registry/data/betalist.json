@@ -1,0 +1,44 @@
+{
+  "id": "betalist",
+  "name": "BetaList",
+  "url": "https://betalist.com",
+  "submit_url": "https://betalist.com/submit",
+  "description": "Pre-launch / beta directory for discovering and getting early adopters; great for waitlist building.",
+  "tags": ["pre-launch", "beta", "waitlist", "early-adopters"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://betalist.com/sign_up",
+    "login_url": "https://betalist.com/sign_in",
+    "notes": "Email/password account. Submission is reviewed before going live; free queue is slow, paid is expedited."
+  },
+  "best_practices": [
+    "BetaList is for pre-launch startups — frame the product as early/upcoming and emphasise the waitlist or early-access angle.",
+    "Pitch must be a single, jargon-free sentence describing what it does and for whom.",
+    "Use a clean square logo (no text-heavy banners) — it renders small in the directory grid.",
+    "The description should focus on the problem and who it's for, not a feature dump.",
+    "Have a working landing page with an email capture before submitting; reviewers reject dead links."
+  ],
+  "questions": [
+    {"id": "name", "label": "Startup name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["#startup_name", "input[name='startup[name]']", "input[name='name']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["#startup_url", "input[name='startup[url]']", "input[name='url']"]},
+    {"id": "pitch", "label": "Pitch (one sentence)", "type": "text", "maps_to": "tagline", "required": true, "max_length": 100,
+     "help": "A single sentence: what it is and who it's for.",
+     "selectors": ["#startup_pitch", "input[name='startup[pitch]']", "textarea[name='pitch']"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": true, "max_length": 600,
+     "help": "Problem you solve and who it's for; keep it concrete.",
+     "selectors": ["#startup_description", "textarea[name='startup[description]']", "textarea[name='description']"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": false,
+     "selectors": ["#startup_category", "select[name='startup[category]']"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["#startup_twitter", "input[name='startup[twitter]']"]},
+    {"id": "logo", "label": "Logo image", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, ideally 240x240+ PNG.",
+     "selectors": ["#startup_logo", "input[type='file'][name='startup[logo]']"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["#user_email", "input[name='email']", "input[type='email']"]}
+  ]
+}

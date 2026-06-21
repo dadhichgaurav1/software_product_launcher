@@ -1,0 +1,48 @@
+{
+  "id": "devhunt",
+  "name": "DevHunt",
+  "url": "https://devhunt.org",
+  "submit_url": "https://devhunt.org/tool/new",
+  "description": "Launch directory specifically for developer tools, libraries and APIs; weekly leaderboard voted on by developers.",
+  "tags": ["developer-tools", "libraries", "apis", "weekly-leaderboard", "open-source"],
+  "fee": "free",
+  "do_follow": true,
+  "auth": {
+    "type": "github",
+    "signup_url": "https://devhunt.org/login",
+    "login_url": "https://devhunt.org/login",
+    "notes": "Sign in with GitHub (OAuth). Tools are submitted by makers and voted weekly."
+  },
+  "best_practices": [
+    "DevHunt's audience is developers — lead with the technical value (what it does, language/stack, integrations) not marketing fluff.",
+    "Tagline should read like a great README headline: precise and benefit-driven for engineers.",
+    "Mention if it's open source and link the repo; the crowd rewards OSS and do-follow repo links.",
+    "Include a short list of concrete capabilities / supported integrations.",
+    "Submit early in the week to maximise time on the weekly leaderboard.",
+    "A GIF or short demo video of the tool in action converts far better than screenshots."
+  ],
+  "questions": [
+    {"id": "name", "label": "Tool name", "type": "text", "maps_to": "name", "required": true, "max_length": 60,
+     "selectors": ["input[name='name']", "#tool-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 80,
+     "help": "One technical, benefit-driven line.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='slogan']"]},
+    {"id": "url", "label": "Website / repo URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "github", "label": "GitHub repo", "type": "url", "maps_to": "github", "required": false,
+     "selectors": ["input[name='github']", "input[name='repo']", "#github"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "What it does, the stack, and key capabilities for developers.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "categories", "label": "Categories / tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='categories']"]},
+    {"id": "pricing", "label": "Pricing", "type": "text", "maps_to": "pricing", "required": false,
+     "selectors": ["input[name='pricing']", "#pricing", "select[name='pricing']"]},
+    {"id": "logo", "label": "Logo / icon", "type": "file", "maps_to": null, "required": true,
+     "help": "Square icon, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "demo_video", "label": "Demo video / GIF URL", "type": "url", "maps_to": null, "required": false,
+     "help": "Short demo of the tool in action.",
+     "selectors": ["input[name='video']", "#video", "input[name='demo']"]}
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "fazier",
+  "name": "Fazier",
+  "url": "https://fazier.com",
+  "submit_url": "https://fazier.com/submit",
+  "description": "Product launch platform with a launch leaderboard that is especially strong for AI-first and SaaS products, surfacing new tools to founders, makers and early adopters.",
+  "tags": ["ai", "saas", "launch-leaderboard", "makers", "directory"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://fazier.com/sign-up",
+    "login_url": "https://fazier.com/login",
+    "notes": "Email/password account (social sign-in also available) to submit and schedule a launch. Free launches join the public leaderboard; paid tiers add featured placement and badges."
+  },
+  "best_practices": [
+    "Fazier skews AI-first and SaaS — lead with the AI capability or the SaaS outcome and the specific use case it nails.",
+    "Make the tagline concrete about the value (what it automates or accelerates) rather than generic 'AI-powered' phrasing.",
+    "Name the ideal customer and the workflow you improve; this leaderboard audience scans for fit fast.",
+    "Highlight integrations, models or your tech edge — AI/SaaS buyers here look for substance and differentiation.",
+    "Schedule your launch date deliberately and rally your network early in the day to climb the launch leaderboard.",
+    "Add a short demo video or product GIF; seeing the AI/SaaS flow in action converts far better than static shots.",
+    "Use a crisp square logo and clear screenshots so the listing looks credible at a glance."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "Concrete value line; what it automates or accelerates for whom.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "What it does, the AI/SaaS use case, integrations and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "pricing", "label": "Pricing", "type": "select", "maps_to": "pricing", "required": false,
+     "options": ["Free", "Freemium", "Paid", "Free Trial"],
+     "selectors": ["select[name='pricing']", "#pricing", "input[name='pricing']"]},
+    {"id": "launch_date", "label": "Launch date", "type": "text", "maps_to": null, "required": false,
+     "help": "Schedule the day your product appears on the launch leaderboard.",
+     "selectors": ["input[name='launch_date']", "#launch-date", "input[type='date']"]},
+    {"id": "demo_video", "label": "Demo video URL", "type": "url", "maps_to": null, "required": false,
+     "help": "Short video or GIF showing the product in action.",
+     "selectors": ["input[name='video']", "#video", "input[name='demo']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

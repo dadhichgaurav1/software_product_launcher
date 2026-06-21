@@ -1,0 +1,52 @@
+{
+  "id": "launchpadindia",
+  "name": "LaunchPad India",
+  "url": "https://launchpadindia.co/",
+  "submit_url": "https://launchpadindia.co/submit",
+  "description": "India-focused startup and product launch directory for discovering and showcasing Indian-made and India-serving products to a local founder, maker and early-adopter audience.",
+  "tags": ["india", "startups", "product-launch", "makers", "directory"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://launchpadindia.co/sign-up",
+    "login_url": "https://launchpadindia.co/login",
+    "notes": "Email/password account to submit and manage listings. Submissions are reviewed before going live; a paid tier expedites the queue and featured placement."
+  },
+  "best_practices": [
+    "LaunchPad India's audience is Indian founders, makers and early adopters — call out the India angle (built in India, India-first pricing, or solving an India-specific problem) where it's genuine.",
+    "Keep the tagline plain-English and jargon-free; many readers skim on mobile, so front-load what it does.",
+    "If you price in INR or offer India-friendly payments (UPI, Razorpay), mention it — it builds trust with this crowd.",
+    "Pick the single most accurate category rather than spreading across many; the directory is browsed by category.",
+    "Use a clean square logo that reads well at small sizes in the listing grid.",
+    "Add your founder/maker name and socials — the community engages directly with people behind the product.",
+    "List concrete benefits over a feature dump; describe who it's for and the outcome they get."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product / startup name", "type": "text", "maps_to": "name", "required": true, "max_length": 60,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline / one-liner", "type": "text", "maps_to": "tagline", "required": true, "max_length": 80,
+     "help": "One plain-English sentence on what it does and for whom.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "What the product is, the problem it solves and who it's for; mention the India angle if relevant.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "help": "Choose the single best-fit category.",
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='keywords']"]},
+    {"id": "pricing", "label": "Pricing", "type": "text", "maps_to": "pricing", "required": false,
+     "help": "Free, freemium or paid; mention INR / UPI support if applicable.",
+     "selectors": ["input[name='pricing']", "select[name='pricing']", "#pricing"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred, 240x240+.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "maker_name", "label": "Your name", "type": "text", "maps_to": "maker_name", "required": true,
+     "selectors": ["input[name='maker_name']", "input[name='founder']", "#maker-name"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

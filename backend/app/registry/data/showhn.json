@@ -1,0 +1,36 @@
+{
+  "id": "showhn",
+  "name": "Show HN (Hacker News)",
+  "url": "https://news.ycombinator.com/show",
+  "submit_url": "https://news.ycombinator.com/submit",
+  "description": "Show HN is the Hacker News section for sharing something you built. The audience is technical (engineers, founders, hackers) and rewards substance over marketing.",
+  "tags": ["hacker-news", "show-hn", "technical", "developers", "community"],
+  "fee": "free",
+  "do_follow": false,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://news.ycombinator.com/login",
+    "login_url": "https://news.ycombinator.com/login",
+    "notes": "Hacker News username + password account (no email-only field; the login and signup forms live on the same page). New accounts may not be able to submit immediately and outbound links are nofollow."
+  },
+  "best_practices": [
+    "Title must start with 'Show HN:' and describe what it actually does, e.g. 'Show HN: Acme – open-source <thing> that <does X>'. Avoid hype words like 'revolutionary' or 'best'.",
+    "Be technically honest: say what works, what doesn't, the stack, and any known limitations — the crowd punishes overselling and rewards candor.",
+    "Link directly to the working thing (live demo, repo, or app), not a marketing splash page with an email gate.",
+    "Write a short first comment (the 'text' field) explaining why you built it, how it works, and what feedback you want — this seeds the discussion.",
+    "Post in US morning hours (around 8-10am ET on a weekday) for maximum visibility on the front page.",
+    "Stick around and reply to every comment quickly and substantively; engaged authors get far more traction.",
+    "Don't ask for upvotes or use any growth-hacking on HN — it gets flagged and can hurt your account."
+  ],
+  "questions": [
+    {"id": "title", "label": "Title", "type": "text", "maps_to": null, "required": true, "max_length": 80,
+     "help": "Must begin with 'Show HN:'. Format: 'Show HN: <Product> – <what it does>'. No marketing speak.",
+     "selectors": ["input[name='title']", "#title", "input[name='t']"]},
+    {"id": "url", "label": "URL", "type": "url", "maps_to": "url", "required": false,
+     "help": "Link to the live product, demo, or repo. Either URL or text is required.",
+     "selectors": ["input[name='url']", "#url", "input[name='u']"]},
+    {"id": "text", "label": "Text (first comment)", "type": "textarea", "maps_to": null, "required": false,
+     "help": "Background: why you built it, how it works, the stack, and what feedback you'd like. Keep it concise and honest.",
+     "selectors": ["textarea[name='text']", "#text", "textarea"]}
+  ]
+}

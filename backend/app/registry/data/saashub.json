@@ -1,0 +1,53 @@
+{
+  "id": "saashub",
+  "name": "SaaSHub",
+  "url": "https://www.saashub.com",
+  "submit_url": "https://www.saashub.com/submit-service",
+  "description": "B2B SaaS discovery and software-comparison directory organized around alternatives and competitors; audience is businesses and buyers researching software, making it a long-term, SEO-driven listing rather than a one-day launch.",
+  "tags": ["saas", "b2b", "software-discovery", "alternatives", "comparison"],
+  "fee": "freemium",
+  "do_follow": false,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://www.saashub.com/users/sign_up",
+    "login_url": "https://www.saashub.com/users/sign_in",
+    "notes": "Free email/password account to submit and claim/manage your service. Listings are reviewed and then live long-term; you can later claim the page to keep details updated."
+  },
+  "best_practices": [
+    "SaaSHub is an evergreen, alternatives-driven directory, so complete every profile field; thorough listings rank and convert over months, not just launch day.",
+    "List accurate competitors/alternatives, since SaaSHub's traffic comes from 'X alternatives' searches and being on the right comparison pages drives qualified buyers.",
+    "Choose precise categories and keyword-rich tags so your service appears in the relevant B2B comparison and discovery feeds.",
+    "Write a description that reads for business buyers and naturally includes the keywords people search to find tools like yours.",
+    "Keep pricing clear and accurate; B2B researchers filter and compare on pricing, so vague pricing loses clicks.",
+    "Add a clean logo and screenshots and claim the listing so you can respond to reviews and keep information current.",
+    "Cross-link your strongest features and integrations; SaaSHub surfaces these on comparison views against alternatives."
+  ],
+  "questions": [
+    {"id": "name", "label": "Service name", "type": "text", "maps_to": "name", "required": true, "max_length": 60,
+     "selectors": ["input[name='name']", "#service-name", "#name"]},
+    {"id": "tagline", "label": "Tagline / short description", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "One clear line describing the service for business buyers.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='short_description']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_long", "required": true, "max_length": 1000,
+     "help": "Keyword-rich, buyer-focused explanation of what it does and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "categories", "label": "Categories", "type": "tags", "maps_to": "categories", "required": true,
+     "help": "Pick accurate categories so you appear in the right comparison feeds.",
+     "selectors": ["input[name='categories']", "#categories", "select[name='categories']"]},
+    {"id": "tags", "label": "Tags / keywords", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='keywords']"]},
+    {"id": "alternatives", "label": "Alternatives / competitors", "type": "tags", "maps_to": null, "required": false,
+     "help": "Name the competing tools your service is an alternative to; this places you on the right comparison pages.",
+     "selectors": ["input[name='alternatives']", "#alternatives", "input[name='competitors']"]},
+    {"id": "pricing", "label": "Pricing", "type": "select", "maps_to": "pricing", "required": false,
+     "options": ["Free", "Freemium", "Paid", "Free Trial", "Open Source"],
+     "selectors": ["select[name='pricing']", "#pricing", "input[name='pricing']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": false,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo", "input[type='file']"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

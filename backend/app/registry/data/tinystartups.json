@@ -1,0 +1,49 @@
+{
+  "id": "tinystartups",
+  "name": "Tiny Startups",
+  "url": "https://tinystartups.com",
+  "submit_url": "https://tinystartups.com/submit",
+  "description": "A directory and community spotlighting tiny startups and maker projects. The audience is indie hackers, solo founders and early adopters who like scrappy, bootstrapped products.",
+  "tags": ["tiny-startups", "indie-makers", "bootstrapped", "side-projects", "directory"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://tinystartups.com/signup",
+    "login_url": "https://tinystartups.com/login",
+    "notes": "Create an account with email/password (social sign-in often available). Submissions are reviewed before being featured; a paid tier can fast-track or boost a listing."
+  },
+  "best_practices": [
+    "Lead with the 'tiny' angle — a small, focused product built by a maker resonates more than an enterprise pitch.",
+    "Keep the tagline to one punchy, jargon-free line that names the user and the outcome.",
+    "Tell the founder/maker story briefly in the description; this community connects with the person behind the build.",
+    "Use a clean square logo that reads well at thumbnail size in the directory grid.",
+    "Add your Twitter/X handle so makers can follow and amplify your launch.",
+    "Make sure the link goes to a live, working page — broken or coming-soon links get rejected."
+  ],
+  "questions": [
+    {"id": "name", "label": "Startup name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#name", "#startup_name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 70,
+     "help": "One short line: who it's for and what it does.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='pitch']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "#url", "input[name='website']"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": true, "max_length": 300,
+     "help": "What it does, who it's for, and the maker story in a couple of sentences.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": false,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter"]},
+    {"id": "maker_name", "label": "Maker name", "type": "text", "maps_to": "maker_name", "required": false,
+     "selectors": ["input[name='maker']", "#maker_name", "input[name='maker_name']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file']", "#logo"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

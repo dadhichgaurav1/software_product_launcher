@@ -1,0 +1,52 @@
+{
+  "id": "uneed",
+  "name": "Uneed",
+  "url": "https://www.uneed.best",
+  "submit_url": "https://www.uneed.best/submit-a-tool",
+  "description": "Daily product-discovery newsletter and directory with an indie-maker and bootstrapper audience; products are featured daily and weekly and surfaced to newsletter subscribers.",
+  "tags": ["newsletter", "indie", "makers", "daily-featured", "tools"],
+  "fee": "freemium",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://www.uneed.best/sign-up",
+    "login_url": "https://www.uneed.best/login",
+    "notes": "Email/password account to submit and manage your tool. Free submissions queue for a future feature date; paid options skip the line and add Featured/Top placement in the newsletter."
+  },
+  "best_practices": [
+    "Uneed pushes picks to a daily newsletter — write a hook-first tagline that a subscriber would click on from their inbox.",
+    "Lead with the concrete benefit and the audience; this crowd is indie makers and bootstrappers, so avoid enterprise jargon.",
+    "Offer a promo code or lifetime/launch deal for Uneed readers if you can — newsletter audiences respond strongly to exclusive offers.",
+    "Pick the most specific category and a tight set of tags so you surface in the right newsletter section.",
+    "Use a bright, square logo that stands out as a thumbnail in an email and the directory grid.",
+    "A short demo video or GIF lifts engagement; add one if the field is available.",
+    "Time your feature date around your own launch push so newsletter traffic compounds with your other channels."
+  ],
+  "questions": [
+    {"id": "name", "label": "Tool name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#tool-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 60,
+     "help": "A punchy, newsletter-ready hook: what it is and why to click.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": true, "max_length": 300,
+     "help": "Short, scannable summary of what it does and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "category", "label": "Category", "type": "select", "maps_to": "categories", "required": true,
+     "selectors": ["select[name='category']", "#category"]},
+    {"id": "tags", "label": "Tags", "type": "tags", "maps_to": "topics_tags", "required": false,
+     "selectors": ["input[name='tags']", "#tags", "input[name='keywords']"]},
+    {"id": "pricing", "label": "Pricing", "type": "select", "maps_to": "pricing", "required": false,
+     "options": ["Free", "Freemium", "Paid", "Free Trial"],
+     "selectors": ["select[name='pricing']", "#pricing", "input[name='pricing']"]},
+    {"id": "promo_code", "label": "Promo code for Uneed readers", "type": "text", "maps_to": null, "required": false,
+     "help": "Optional exclusive discount code or deal for the newsletter audience.",
+     "selectors": ["input[name='promo_code']", "#promo-code", "input[name='discount']"]},
+    {"id": "logo", "label": "Logo", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo"]},
+    {"id": "maker_email", "label": "Your email", "type": "email", "maps_to": "maker_email", "required": true,
+     "selectors": ["input[type='email']", "input[name='email']", "#email"]}
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "openhunts",
+  "name": "OpenHunts",
+  "url": "https://openhunts.com",
+  "submit_url": "https://openhunts.com/submit",
+  "description": "Open, community-run Product Hunt-style directory where makers launch products daily and the community upvotes them; audience is indie makers, founders and early adopters looking for new tools.",
+  "tags": ["product-hunt-alternative", "launch", "indie-makers", "upvotes", "directory"],
+  "fee": "free",
+  "do_follow": true,
+  "auth": {
+    "type": "email",
+    "signup_url": "https://openhunts.com/signup",
+    "login_url": "https://openhunts.com/login",
+    "notes": "Create a free maker account with email/password (social sign-in often available). Submit your product, add media and a first comment, then rally upvotes on launch day."
+  },
+  "best_practices": [
+    "OpenHunts runs daily upvote rounds, so schedule your launch and notify your audience early to ride the day's leaderboard.",
+    "Write a single jargon-free tagline that explains the product to a maker scrolling a feed; clarity beats cleverness here.",
+    "Pick a small set of accurate topics/tags so the right early adopters discover you in category feeds.",
+    "Post a genuine, personal first comment as the maker explaining why you built it and what feedback you want.",
+    "Upload a crisp square logo plus 2-4 gallery screenshots or a GIF; visual products convert far better in the grid.",
+    "Engage with every comment and upvoter during the launch window; this open community rewards responsive makers.",
+    "Add your Twitter/X handle so supporters can follow and reshare your launch."
+  ],
+  "questions": [
+    {"id": "name", "label": "Product name", "type": "text", "maps_to": "name", "required": true, "max_length": 50,
+     "selectors": ["input[name='name']", "#product-name", "#name"]},
+    {"id": "tagline", "label": "Tagline", "type": "text", "maps_to": "tagline", "required": true, "max_length": 60,
+     "help": "One clear, jargon-free line describing what the product does.",
+     "selectors": ["input[name='tagline']", "#tagline", "input[name='headline']"]},
+    {"id": "url", "label": "Website URL", "type": "url", "maps_to": "url", "required": true,
+     "selectors": ["input[name='url']", "input[name='website']", "#url"]},
+    {"id": "description", "label": "Description", "type": "textarea", "maps_to": "description_short", "required": true, "max_length": 260,
+     "help": "Short, scannable summary of what it does and who it's for.",
+     "selectors": ["textarea[name='description']", "#description"]},
+    {"id": "topics", "label": "Topics / tags", "type": "tags", "maps_to": "topics_tags", "required": true,
+     "help": "Pick the most relevant topics so the right audience finds you.",
+     "selectors": ["input[name='topics']", "#topics", "input[name='tags']"]},
+    {"id": "logo", "label": "Logo / thumbnail", "type": "file", "maps_to": null, "required": true,
+     "help": "Square logo, transparent PNG preferred.",
+     "selectors": ["input[type='file'][name='logo']", "#logo", "input[type='file']"]},
+    {"id": "gallery", "label": "Gallery images", "type": "file", "maps_to": null, "required": false,
+     "help": "Screenshots or a GIF of the product in action.",
+     "selectors": ["input[type='file'][name='gallery']", "#gallery", "input[type='file'][multiple]"]},
+    {"id": "first_comment", "label": "First comment (maker note)", "type": "textarea", "maps_to": null, "required": false,
+     "help": "Introduce yourself, why you built it, and what feedback you want.",
+     "selectors": ["textarea[name='comment']", "#first-comment", "textarea[name='maker_comment']"]},
+    {"id": "maker_name", "label": "Your name", "type": "text", "maps_to": "maker_name", "required": false,
+     "selectors": ["input[name='maker_name']", "#maker-name", "input[name='author']"]},
+    {"id": "twitter", "label": "Twitter / X handle", "type": "text", "maps_to": "twitter", "required": false,
+     "selectors": ["input[name='twitter']", "#twitter", "input[name='x']"]}
+  ]
+}
