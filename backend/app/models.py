@@ -144,8 +144,11 @@ class Answer(BaseModel):
     label: str
     value: str
     type: str = "text"
-    source: str = "product"  # product | best_practice | llm | derived
+    source: str = "product"  # product | best_practice | llm | derived | edited
     truncated: bool = False
+    edited: bool = False  # user edited this value inline
+    max_length: Optional[int] = None  # platform field limit (for the editor)
+    help: str = ""
     selectors: list[str] = Field(default_factory=list)
 
 
@@ -168,3 +171,23 @@ class AnswerSet(BaseModel):
     fill_plan: list[FillStep] = Field(default_factory=list)
     auth: AuthInfo = Field(default_factory=AuthInfo)
     notes: list[str] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Drafts (persisted answer sets + agent-chat history per product)
+# ---------------------------------------------------------------------------
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+    at: str = Field(default_factory=_now)
+    scope: str = ""  # which sites the instruction targeted, human-readable
+    affected_sites: list[str] = Field(default_factory=list)
+
+
+class DraftBundle(BaseModel):
+    """All persisted drafts + chat history for one product URL."""
+
+    product_url: str
+    updated_at: str = Field(default_factory=_now)
+    answer_sets: dict[str, AnswerSet] = Field(default_factory=dict)
+    chat: list[ChatMessage] = Field(default_factory=list)

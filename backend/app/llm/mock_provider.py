@@ -58,6 +58,10 @@ def _sentences(text: str) -> list[str]:
     return [p.strip() for p in parts if len(p.strip()) > 3]
 
 
+def _any(haystack: str, *needles: str) -> bool:
+    return any(n in haystack for n in needles)
+
+
 class MockProvider(LLMProvider):
     name = "mock"
 
@@ -109,9 +113,91 @@ class MockProvider(LLMProvider):
         # applied downstream by the generator so it happens at a clean boundary.
         return _clean(self._value_for(question, product, site))
 
+    def revise_answer(
+        self,
+        *,
+        question: Question,
+        product: Product,
+        site: LaunchSite,
+        current_value: str,
+        instruction: str,
+        best_practices: list[str],
+    ) -> str:
+        """Deterministic, keyword-driven revision so agent-chat works offline.
+        (OpenAIProvider does free-form rewriting; this covers common edits.)"""
+        text = _clean(current_value) or self._value_for(question, product, site)
+        ins = instruction.lower()
+
+        if _any(ins, "short", "concise", "punch", "snappy", "tight", "trim", "brief", "crisp", "shorten"):
+            text = self._shorten(text)
+        if _any(ins, "expand", "longer", "detail", "elaborate", "more detail", "richer", "flesh"):
+            text = self._expand(text, product)
+        if _any(ins, "emoji", " fun", "playful", "casual", "friendly", "lively", "energetic"):
+            text = self._add_emoji(text, product)
+        if _any(ins, "professional", "formal", "serious", "corporate", "no emoji", "remove emoji"):
+            text = self._formalize(text)
+        if _any(ins, "benefit", "value", "outcome", "result"):
+            if product.benefits and product.benefits[0].lower() not in text.lower():
+                text = self._append_clause(text, product.benefits[0])
+        if _any(ins, "keyword", "seo", "searchable", "discover"):
+            if product.categories and product.categories[0].lower() not in text.lower():
+                text = self._append_clause(text, product.categories[0])
+        if _any(ins, "title case", "capitalize", "capitalise"):
+            text = text.title()
+        return _clean(text)
+
     def complete(self, system: str, user: str, max_tokens: int = 512) -> str:
         # Deterministic: return the first few sentences of the user content.
         return " ".join(_sentences(user)[:3])
+
+    # -- revision helpers --------------------------------------------------
+    def _shorten(self, text: str) -> str:
+        for end in (". ", "! ", "? "):
+            i = text.find(end)
+            if i > 10:
+                return text[: i + 1].strip()
+        for sep in (" — ", " – ", " - ", "; ", ": ", ", "):
+            i = text.find(sep)
+            if i > 10:
+                return text[:i].strip()
+        words = text.split()
+        return " ".join(words[:8]) if len(words) > 8 else text
+
+    def _expand(self, text: str, product: Product) -> str:
+        add = product.benefits[0] if product.benefits else (
+            product.features[0].title if product.features else ""
+        )
+        if add and add.lower() not in text.lower():
+            return self._append_clause(text, add)
+        return text
+
+    @staticmethod
+    def _add_emoji(text: str, product: Product) -> str:
+        if any(ord(c) >= 0x2600 for c in text):
+            return text
+        cats = " ".join(product.categories).lower()
+        emoji = "🚀"
+        if "ai" in cats:
+            emoji = "🤖"
+        elif "design" in cats:
+            emoji = "🎨"
+        elif "develop" in cats:
+            emoji = "🛠️"
+        elif "market" in cats:
+            emoji = "📈"
+        return f"{emoji} {text}"
+
+    @staticmethod
+    def _formalize(text: str) -> str:
+        text = re.sub(r"[\U0001F000-\U0001FAFF☀-➿️]", "", text)
+        text = text.replace("!", ".")
+        return re.sub(r"\s+", " ", text).strip()
+
+    @staticmethod
+    def _append_clause(text: str, clause: str) -> str:
+        clause = _clean(clause).rstrip(". ")
+        joiner = " — " if "—" not in text else "; "
+        return f"{text}{joiner}{clause}"
 
     # -- field mapping for answers ----------------------------------------
     def _value_for(self, q: Question, p: Product, site: LaunchSite) -> str:

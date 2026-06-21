@@ -114,6 +114,53 @@ class OpenAIProvider(LLMProvider):
                 question=question, product=product, site=site, best_practices=best_practices
             )
 
+    def revise_answer(
+        self,
+        *,
+        question: Question,
+        product: Product,
+        site: LaunchSite,
+        current_value: str,
+        instruction: str,
+        best_practices: list[str],
+    ) -> str:
+        limit = (
+            f"The result MUST be at most {question.max_length} characters."
+            if question.max_length
+            else "Keep it appropriately concise."
+        )
+        system = (
+            f"You revise a single launch-submission field for {site.name}. Apply the "
+            f"user's instruction to the current value while keeping it accurate to the "
+            f"product and following platform best-practices. {limit} "
+            f"Output ONLY the revised field text, no preamble, no quotes."
+        )
+        user = (
+            f"FIELD: {question.label} (type={question.type})\n"
+            f"CURRENT VALUE: {current_value!r}\n"
+            f"INSTRUCTION: {instruction}\n\n"
+            f"PRODUCT (for grounding): {product.model_dump_json(exclude={'raw_pages', 'assets'})[:1500]}"
+        )
+        try:
+            resp = self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.6,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+            )
+            text = (resp.choices[0].message.content or "").strip().strip('"')
+            text, _ = fit_text(text, question.max_length)
+            return text or current_value
+        except Exception as exc:  # noqa: BLE001
+            log.warning("OpenAI revise_answer failed (%s); using mock fallback", exc)
+            return self._fallback.revise_answer(
+                question=question, product=product, site=site,
+                current_value=current_value, instruction=instruction,
+                best_practices=best_practices,
+            )
+
     def complete(self, system: str, user: str, max_tokens: int = 512) -> str:
         try:
             resp = self.client.chat.completions.create(

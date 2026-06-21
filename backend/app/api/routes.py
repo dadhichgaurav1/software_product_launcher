@@ -22,6 +22,20 @@ class GenerateRequest(BaseModel):
     url: str
     site_ids: list[str] | None = None
     force_scan: bool = False
+    regenerate: bool = True  # False = keep persisted edits/revisions
+
+
+class EditRequest(BaseModel):
+    url: str
+    site_id: str
+    question_id: str
+    value: str
+
+
+class ChatRequest(BaseModel):
+    url: str
+    instruction: str
+    site_ids: list[str] | None = None  # None/empty = all drafts
 
 
 # -- meta -------------------------------------------------------------------
@@ -103,10 +117,48 @@ def generate(req: GenerateRequest):
     if not req.url.strip():
         raise HTTPException(400, "url is required")
     try:
-        sets = services.generate(req.url, req.site_ids, force_scan=req.force_scan)
+        sets = services.generate(
+            req.url, req.site_ids, force_scan=req.force_scan, regenerate=req.regenerate
+        )
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     return {"answer_sets": [s.model_dump() for s in sets], "count": len(sets)}
+
+
+@router.get("/drafts")
+def drafts(url: str = Query(...)):
+    """All persisted drafts + chat history for a product (for the web UI)."""
+    bundle = services.get_drafts(url)
+    return bundle.model_dump()
+
+
+@router.patch("/draft/answer")
+def edit_answer(req: EditRequest):
+    """Apply an inline edit to one field and rebuild its fill step."""
+    try:
+        aset = services.update_answer(req.url, req.site_id, req.question_id, req.value)
+    except KeyError:
+        raise HTTPException(404, f"Unknown site '{req.site_id}'")
+    except LookupError as exc:
+        raise HTTPException(404, str(exc))
+    return aset.model_dump()
+
+
+@router.post("/chat")
+def chat(req: ChatRequest):
+    """Agent-chat: revise drafts across the selected sites per an instruction."""
+    if not req.instruction.strip():
+        raise HTTPException(400, "instruction is required")
+    try:
+        result = services.chat_revise(req.url, req.instruction, req.site_ids)
+    except LookupError as exc:
+        raise HTTPException(404, str(exc))
+    return result
+
+
+@router.get("/chat/history")
+def chat_history(url: str = Query(...)):
+    return {"chat": [m.model_dump() for m in services.get_drafts(url).chat]}
 
 
 @router.get("/answers/{site_id}")

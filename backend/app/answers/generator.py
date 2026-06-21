@@ -23,6 +23,18 @@ _ACTION_BY_TYPE = {
 }
 
 
+def fill_step_for(question: Question, value: str) -> FillStep | None:
+    """Build the extension fill step for a question+value (used on edit/revise)."""
+    if not question.selectors:
+        return None
+    return FillStep(
+        selectors=question.selectors,
+        action=_ACTION_BY_TYPE.get(question.type, "fill"),
+        value=value,
+        question_id=question.id,
+    )
+
+
 class AnswerGenerator:
     def __init__(self, provider: LLMProvider | None = None, researcher=None) -> None:
         self.provider = provider or get_provider()
@@ -74,16 +86,11 @@ class AnswerGenerator:
             type=q.type,
             source=source,
             truncated=truncated,
+            max_length=q.max_length,
+            help=q.help,
             selectors=q.selectors,
         )
-        step = None
-        if value and q.selectors:
-            step = FillStep(
-                selectors=q.selectors,
-                action=_ACTION_BY_TYPE.get(q.type, "fill"),
-                value=value,
-                question_id=q.id,
-            )
+        step = fill_step_for(q, value) if value else None
         note = None
         if q.required and not value:
             note = f"Required field '{q.label}' could not be auto-filled — please complete manually."
@@ -103,15 +110,12 @@ class AnswerGenerator:
             value=value,
             type="file",
             source="derived",
+            help=q.help,
             selectors=q.selectors,
         )
         # Browsers do not allow scripted file selection; the extension opens the
         # picker / pre-fills a URL field and the user confirms the file.
-        step = None
-        if q.selectors:
-            step = FillStep(
-                selectors=q.selectors, action="upload", value=value, question_id=q.id
-            )
+        step = fill_step_for(q, value)
         if asset:
             note = (
                 f"'{q.label}': suggested asset is {value}. File pickers require a manual "

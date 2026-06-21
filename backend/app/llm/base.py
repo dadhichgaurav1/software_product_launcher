@@ -36,5 +36,19 @@ class LLMProvider(ABC):
         """Return the best-practice answer text for one launch-site question."""
 
     @abstractmethod
+    def revise_answer(
+        self,
+        *,
+        question: Question,
+        product: Product,
+        site: LaunchSite,
+        current_value: str,
+        instruction: str,
+        best_practices: list[str],
+    ) -> str:
+        """Return a revised value for one field given a natural-language
+        instruction (e.g. 'make it punchier', 'shorten', 'add the AI angle')."""
+
+    @abstractmethod
     def complete(self, system: str, user: str, max_tokens: int = 512) -> str:
         """Generic text completion (used for misc. summarization tasks)."""
