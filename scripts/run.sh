@@ -16,4 +16,6 @@ fi
 export HOST="${HOST:-127.0.0.1}"
 export PORT="${PORT:-8000}"
 echo "Starting on http://$HOST:$PORT  (web UI at /, API docs at /docs)"
-exec python3 -m uvicorn app.main:app --host "$HOST" --port "$PORT" "${@}"
+# Pass through any extra args (e.g. --reload). ${1+"$@"} is the portable idiom
+# so an empty arg list doesn't trip `set -u` on macOS's bash 3.2.
+exec python3 -m uvicorn app.main:app --host "$HOST" --port "$PORT" ${1+"$@"}
