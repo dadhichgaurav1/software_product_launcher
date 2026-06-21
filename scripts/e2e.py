@@ -115,11 +115,38 @@ def main() -> int:
     check(len(one["fill_plan"]) > 0, "fill plan has steps")
     check(all(s["selectors"] for s in one["fill_plan"]), "every fill step has CSS selectors")
 
-    section("7. Generate across ALL 20 sites")
+    section("7. Tagline fitting (no mid-word truncation)")
+    long_tag = "AI task manager that plans your sprints automatically, automates standups, and ships faster"
+    client.patch("/api/draft/answer", json={
+        "url": BASE, "site_id": "betalist", "question_id": "pitch", "value": long_tag,
+    })
+    edited = client.get("/api/answers/betalist", params={"url": BASE}).json()
+    pitch = next(a for a in edited["answers"] if a["question_id"] == "pitch")
+    print(f"   edited pitch persisted: {pitch['value'][:60]}… (edited={pitch['edited']})")
+    check(pitch["edited"] is True, "inline edit persisted + served to the extension")
+
+    section("8. Agent-chat: revise drafts across selected sites")
+    chat = client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["betalist", "devhunt"], "instruction": "add an emoji to make it fun",
+    }).json()
+    print(f"   assistant: {chat['assistant']}")
+    check(chat["changed_fields"] > 0, "chat revised at least one field")
+    revised = client.get("/api/answers/devhunt", params={"url": BASE}).json()
+    has_emoji = any(any(ord(c) >= 0x2600 for c in a["value"]) for a in revised["answers"])
+    check(has_emoji, "revision is reflected in the persisted draft")
+    hist = client.get("/api/chat/history", params={"url": BASE}).json()["chat"]
+    check(len(hist) >= 2, "chat history persisted (user + assistant)")
+
+    section("9. Generate across ALL 20 sites")
     all_gen = client.post("/api/generate", json={"url": BASE}).json()
     check(all_gen["count"] == 20, f"generated drafts for all {all_gen['count']} sites")
     total_fields = sum(len(s["answers"]) for s in all_gen["answer_sets"])
     total_filled = sum(1 for s in all_gen["answer_sets"] for a in s["answers"] if a["value"])
+    no_midword = all(
+        not a["value"] or a.get("max_length") is None or len(a["value"]) <= a["max_length"]
+        for s in all_gen["answer_sets"] for a in s["answers"]
+    )
+    check(no_midword, "no answer exceeds its platform max_length")
     print(f"   {total_filled}/{total_fields} fields auto-filled across all 20 sites "
           f"({100*total_filled//total_fields}%)")
 

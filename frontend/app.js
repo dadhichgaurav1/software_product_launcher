@@ -6,6 +6,8 @@ const state = {
   product: null,
   sites: [],
   selected: new Set(),
+  answerSets: [],
+  chat: [],
 };
 
 // ---- helpers --------------------------------------------------------------
@@ -63,6 +65,7 @@ async function doScan(forceFromBtn) {
     await ensureSites();
     $("sites-card").classList.remove("hidden");
     await loadRecent();
+    await restoreDrafts();
   } catch (e) {
     setStatus("scan-status", "Scan failed: " + e.message, "err");
   } finally {
@@ -144,7 +147,7 @@ function toggleSite(id, on, el) {
   $("selected-count").textContent = `${state.selected.size} selected`;
 }
 
-// ---- step 4: generate -----------------------------------------------------
+// ---- step 4: generate, edit & chat ---------------------------------------
 async function doGenerate() {
   if (!state.product) { setStatus("generate-status", "Scan a product first.", "err"); return; }
   if (!state.selected.size) { setStatus("generate-status", "Select at least one launch site.", "err"); return; }
@@ -153,9 +156,10 @@ async function doGenerate() {
   try {
     const body = JSON.stringify({ url: state.product.url, site_ids: [...state.selected] });
     const { answer_sets } = await api("/api/generate", { method: "POST", body });
-    renderAnswers(answer_sets);
-    setStatus("generate-status", `Generated ${answer_sets.length} submission draft(s).`, "ok");
-    $("answers-card").classList.remove("hidden");
+    state.answerSets = answer_sets;
+    await loadChat();
+    showReview();
+    setStatus("generate-status", `Generated ${answer_sets.length} submission draft(s). Edit inline or use the agent chat.`, "ok");
     $("answers-card").scrollIntoView({ behavior: "smooth" });
   } catch (e) {
     setStatus("generate-status", "Generation failed: " + e.message, "err");
@@ -164,10 +168,19 @@ async function doGenerate() {
   }
 }
 
-function renderAnswers(sets) {
+function showReview() {
+  $("answers-card").classList.remove("hidden");
+  renderAnswers();
+  populateScope();
+  renderChat();
+}
+
+function setOf(id) { return state.answerSets.find((s) => s.site_id === id); }
+
+function renderAnswers() {
   const wrap = $("answers");
   wrap.innerHTML = "";
-  sets.forEach((set, idx) => {
+  state.answerSets.forEach((set, idx) => {
     const site = state.sites.find((s) => s.id === set.site_id) || {};
     const filled = set.answers.filter((a) => a.value).length;
     const div = document.createElement("div");
@@ -183,29 +196,157 @@ function renderAnswers(sets) {
       </div>
       <div class="answer-body">
         ${set.notes?.length ? `<div class="notes"><strong>Before you submit:</strong><ul>${set.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
-        ${set.answers.map((a) => `
-          <div class="qa">
-            <div class="q">${esc(a.label)}
-              ${a.source === "best_practice" ? '<span class="badge">best-practice</span>' : ""}
-              ${a.truncated ? '<span class="badge trunc">trimmed to fit</span>' : ""}
-              ${a.type === "file" ? '<span class="badge">file</span>' : ""}
-            </div>
-            <div class="a ${a.value ? "" : "empty"}">${a.value ? esc(a.value) : "— fill manually —"}</div>
-          </div>`).join("")}
-        ${site.url ? `<p class="hint">Open <a href="${esc(site.url)}" target="_blank">${esc(site.name)}</a>, then use the Chrome extension's “Fill This Page”.</p>` : ""}
+        ${set.answers.map((a) => answerRow(set.site_id, a)).join("")}
+        ${site.url ? `<p class="hint">Open <a href="${esc(site.url)}" target="_blank">${esc(site.name)}</a>, then use the extension's “Fill This Page”.</p>` : ""}
       </div>`;
     div.querySelector(".answer-head").addEventListener("click", (e) => {
       if (e.target.classList.contains("copy-btn")) return;
       div.classList.toggle("open");
     });
-    div.querySelector(".copy-btn").addEventListener("click", () => {
-      const text = set.answers.filter((a) => a.value).map((a) => `${a.label}:\n${a.value}`).join("\n\n");
-      navigator.clipboard.writeText(text);
-      div.querySelector(".copy-btn").textContent = "Copied!";
-      setTimeout(() => (div.querySelector(".copy-btn").textContent = "Copy all"), 1500);
-    });
+    div.querySelector(".copy-btn").addEventListener("click", () => copyAll(set, div));
+    div.querySelectorAll("textarea.a-edit").forEach(wireEditor);
     wrap.appendChild(div);
   });
+}
+
+function answerRow(siteId, a) {
+  const over = a.max_length && a.value.length > a.max_length;
+  const counter = a.max_length
+    ? `<span class="counter ${over ? "over" : ""}" data-counter>${a.value.length}/${a.max_length}</span>` : "";
+  return `
+    <div class="qa" data-site="${esc(siteId)}" data-q="${esc(a.question_id)}">
+      <div class="q">${esc(a.label)}
+        ${a.source === "best_practice" ? '<span class="badge">best-practice</span>' : ""}
+        ${a.source === "llm" ? '<span class="badge edited">revised</span>' : ""}
+        ${a.edited ? '<span class="badge edited">edited</span>' : ""}
+        ${a.truncated ? '<span class="badge trunc">trimmed to fit</span>' : ""}
+        ${a.type === "file" ? '<span class="badge">file</span>' : ""}
+        ${counter}
+      </div>
+      <textarea class="a-edit" rows="1" data-site="${esc(siteId)}" data-q="${esc(a.question_id)}"
+        data-max="${a.max_length || ""}" placeholder="— fill manually —">${esc(a.value)}</textarea>
+    </div>`;
+}
+
+function wireEditor(ta) {
+  const autosize = () => { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; };
+  setTimeout(autosize, 0);
+  ta.addEventListener("input", () => {
+    autosize();
+    const max = parseInt(ta.dataset.max, 10);
+    const c = ta.closest(".qa").querySelector("[data-counter]");
+    if (c && max) { c.textContent = `${ta.value.length}/${max}`; c.classList.toggle("over", ta.value.length > max); }
+  });
+  ta.addEventListener("change", () => saveEdit(ta.dataset.site, ta.dataset.q, ta.value, ta));
+}
+
+async function saveEdit(siteId, qId, value, ta) {
+  ta.classList.add("saving");
+  try {
+    const aset = await api("/api/draft/answer", {
+      method: "PATCH",
+      body: JSON.stringify({ url: state.product.url, site_id: siteId, question_id: qId, value }),
+    });
+    const i = state.answerSets.findIndex((s) => s.site_id === siteId);
+    if (i >= 0) state.answerSets[i] = aset;
+    ta.classList.remove("saving"); ta.classList.add("saved");
+    setTimeout(() => ta.classList.remove("saved"), 1200);
+    const q = ta.closest(".qa").querySelector(".q");
+    if (q && !q.querySelector(".badge.edited")) q.insertAdjacentHTML("beforeend", ' <span class="badge edited">edited</span>');
+  } catch (e) {
+    ta.classList.remove("saving");
+    setStatus("generate-status", "Save failed: " + e.message, "err");
+  }
+}
+
+function copyAll(set, div) {
+  const text = set.answers.filter((a) => a.value).map((a) => `${a.label}:\n${a.value}`).join("\n\n");
+  navigator.clipboard.writeText(text);
+  const btn = div.querySelector(".copy-btn");
+  btn.textContent = "Copied!";
+  setTimeout(() => (btn.textContent = "Copy all"), 1500);
+}
+
+// ---- agent chat -----------------------------------------------------------
+const SUGGESTIONS = [
+  "Shorten the taglines", "Make it more professional", "Add an emoji",
+  "Lead with the benefit", "Add keywords for SEO",
+];
+
+function populateScope() {
+  const sel = $("chat-scope");
+  sel.innerHTML = `<option value="">All ${state.answerSets.length} drafts</option>` +
+    state.answerSets.map((s) => `<option value="${esc(s.site_id)}">${esc(s.site_name)}</option>`).join("");
+  const sug = $("chat-suggestions");
+  sug.innerHTML = SUGGESTIONS.map((s) => `<span class="sug">${esc(s)}</span>`).join("");
+  sug.querySelectorAll(".sug").forEach((el) =>
+    el.addEventListener("click", () => { $("chat-text").value = el.textContent; sendChat(); }));
+}
+
+function renderChat() {
+  const log = $("chat-log");
+  if (!state.chat.length) {
+    log.innerHTML = `<div class="chat-empty">Ask me to refine the drafts — e.g. “shorten the
+      taglines”, “make it more professional”, “lead with the benefit”, “add an emoji”.</div>`;
+    return;
+  }
+  log.innerHTML = state.chat.map((m) => `
+    <div class="msg ${m.role === "user" ? "user" : "assistant"}">${esc(m.content)}
+      ${m.scope ? `<span class="scope-tag">↳ ${esc(m.scope)}</span>` : ""}</div>`).join("");
+  log.scrollTop = log.scrollHeight;
+}
+
+async function loadChat() {
+  try { state.chat = (await api(`/api/chat/history?url=${encodeURIComponent(state.product.url)}`)).chat || []; }
+  catch (_) { state.chat = []; }
+}
+
+async function sendChat() {
+  const text = $("chat-text").value.trim();
+  if (!text || !state.product) return;
+  const scope = $("chat-scope").value;
+  const site_ids = scope ? [scope] : state.answerSets.map((s) => s.site_id);
+  $("chat-text").value = "";
+  state.chat.push({ role: "user", content: text, scope: scope ? (setOf(scope)?.site_name || scope) : "all drafts" });
+  renderChat();
+  const log = $("chat-log");
+  log.insertAdjacentHTML("beforeend", '<div class="msg assistant chat-thinking" id="thinking">Thinking…</div>');
+  log.scrollTop = log.scrollHeight;
+  setBusy("chat-send", true);
+  try {
+    const res = await api("/api/chat", {
+      method: "POST", body: JSON.stringify({ url: state.product.url, instruction: text, site_ids }),
+    });
+    // merge updated sets back into state
+    (res.answer_sets || []).forEach((aset) => {
+      const i = state.answerSets.findIndex((s) => s.site_id === aset.site_id);
+      if (i >= 0) state.answerSets[i] = aset; else state.answerSets.push(aset);
+    });
+    state.chat = res.chat || state.chat;
+    renderAnswers();
+    renderChat();
+  } catch (e) {
+    document.getElementById("thinking")?.remove();
+    state.chat.push({ role: "assistant", content: "Sorry — that failed: " + e.message });
+    renderChat();
+  } finally {
+    setBusy("chat-send", false);
+  }
+}
+
+async function restoreDrafts() {
+  try {
+    const bundle = await api(`/api/drafts?url=${encodeURIComponent(state.product.url)}`);
+    const sets = Object.values(bundle.answer_sets || {});
+    if (!sets.length) return;
+    state.answerSets = sets;
+    state.chat = bundle.chat || [];
+    sets.forEach((s) => state.selected.add(s.site_id));
+    renderSites();
+    $("selected-count").textContent = `${state.selected.size} selected`;
+    showReview();
+    setStatus("generate-status", `Restored ${sets.length} saved draft(s).`, "ok");
+  } catch (_) {}
 }
 
 // ---- ui utils -------------------------------------------------------------
@@ -219,4 +360,8 @@ $("generate-btn").addEventListener("click", doGenerate);
 $("site-filter").addEventListener("input", renderSites);
 $("select-all").addEventListener("click", () => { state.sites.forEach((s) => state.selected.add(s.id)); renderSites(); $("selected-count").textContent = `${state.selected.size} selected`; });
 $("select-none").addEventListener("click", () => { state.selected.clear(); renderSites(); $("selected-count").textContent = "0 selected"; });
+$("chat-form").addEventListener("submit", (e) => { e.preventDefault(); sendChat(); });
+$("chat-text").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendChat(); }
+});
 boot();

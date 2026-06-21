@@ -36,9 +36,14 @@ This is the "right sequence of execution" derived from the requirements:
 6. **Select** — user picks which of the 20 launch sites to target.
 7. **Answer** — for each site's master question list, the backend generates
    answers that follow that **platform's best‑practices** (curated per site +
-   tag‑based + general + optional live research), respecting field length limits,
+   tag‑based + general + optional live research), fitting each field to its
+   exact length limit at a clean word/clause boundary (no mid‑word chops),
    and builds a **fill plan** (CSS selectors + values).
-8. **Fill** — the Chrome extension signs in (or creates an account) with the
+8. **Refine** — every field is **editable inline** (auto‑saved), and an
+   **agent chat** iterates on the drafts across all selected sites (e.g. “make
+   all taglines punchier”, “lead with the benefit”, “add an emoji”). Edits and
+   revisions persist and feed the fill plan.
+9. **Fill** — the Chrome extension signs in (or creates an account) with the
    user's Google/GitHub/email, fills every fillable field, and leaves the form
    **ready for manual review and submit**.
 
@@ -102,8 +107,12 @@ See [`extension/README.md`](extension/README.md) for details.
 | `GET` | `/api/products` | List stored products. |
 | `GET` | `/api/product?url=` | Fetch a stored product. |
 | `DELETE` | `/api/product?url=` | Delete a stored product. |
-| `POST` | `/api/generate` | `{url, site_ids?, force_scan?}` → answer sets + fill plans. |
-| `GET` | `/api/answers/{site_id}?url=` | Single site's fill plan (used by the extension). |
+| `POST` | `/api/generate` | `{url, site_ids?, force_scan?, regenerate?}` → answer sets + fill plans (persisted as drafts). |
+| `GET` | `/api/answers/{site_id}?url=` | Single site's draft/fill plan (used by the extension; serves edits). |
+| `GET` | `/api/drafts?url=` | All persisted drafts + chat history for a product. |
+| `PATCH` | `/api/draft/answer` | `{url, site_id, question_id, value}` → inline-edit one field; rebuilds its fill step. |
+| `POST` | `/api/chat` | `{url, instruction, site_ids?}` → agent-chat revises drafts across sites. |
+| `GET` | `/api/chat/history?url=` | Persisted agent-chat transcript. |
 
 ---
 

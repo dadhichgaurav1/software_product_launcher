@@ -59,12 +59,32 @@
       </div>
     </section>
 
-    <!-- Step 4: Review answers -->
+    <!-- Step 4: Review, refine & fill -->
     <section class="card hidden" id="answers-card">
-      <h2><span class="step">4</span> Review &amp; fill</h2>
-      <p class="hint">Answers follow each platform's best-practices. Review here, then use the
-        Chrome extension on each site to auto-fill the form and submit manually.</p>
-      <div id="answers"></div>
+      <h2><span class="step">4</span> Review, refine &amp; fill</h2>
+      <p class="hint">Every field is editable inline (auto-saved). Use the agent chat to
+        iterate across sites — e.g. “make all taglines punchier”. Then use the Chrome
+        extension on each site to auto-fill and submit manually.</p>
+      <div class="review-layout">
+        <div id="answers"></div>
+        <aside class="chat-panel" id="chat-panel">
+          <div class="chat-head">
+            <strong>🤖 Agent chat</strong>
+            <label class="scope">Apply to
+              <select id="chat-scope" title="Which drafts to revise"></select>
+            </label>
+          </div>
+          <div class="chat-suggestions" id="chat-suggestions"></div>
+          <div class="chat-log" id="chat-log">
+            <div class="chat-empty">Ask me to refine the drafts — e.g. “shorten the
+              taglines”, “make it more professional”, “lead with the benefit”, “add an emoji”.</div>
+          </div>
+          <form class="chat-input" id="chat-form">
+            <textarea id="chat-text" rows="2" placeholder="Iterate on the selected drafts…"></textarea>
+            <button class="primary" id="chat-send" type="submit">Send</button>
+          </form>
+        </aside>
+      </div>
     </section>
   </main>
 
