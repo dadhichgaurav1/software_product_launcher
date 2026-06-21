@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Launcher</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="pl-header">
+    <div class="pl-title">🚀 Product Launcher</div>
+    <a id="open-options" class="pl-link" href="#" title="Settings">⚙︎</a>
+  </header>
+
+  <main class="pl-main">
+    <!-- configuration -->
+    <section class="pl-card">
+      <label class="pl-label" for="product-url">Product URL</label>
+      <input id="product-url" class="pl-input" type="url" placeholder="https://yourproduct.com" />
+
+      <label class="pl-label" for="backend-url">Backend URL</label>
+      <input id="backend-url" class="pl-input" type="url" placeholder="http://127.0.0.1:8000" />
+
+      <div class="pl-row">
+        <button id="btn-scan" class="pl-btn">Scan &amp; Understand</button>
+        <button id="btn-sites" class="pl-btn pl-btn-ghost">Load Launch Sites</button>
+      </div>
+    </section>
+
+    <!-- scanned product summary -->
+    <section id="product-card" class="pl-card pl-hidden">
+      <div class="pl-product-name" id="product-name"></div>
+      <div class="pl-product-tagline" id="product-tagline"></div>
+      <div class="pl-product-logo-wrap">
+        <img id="product-logo" class="pl-product-logo pl-hidden" alt="logo" />
+      </div>
+    </section>
+
+    <!-- launch site selection -->
+    <section id="sites-card" class="pl-card pl-hidden">
+      <div class="pl-card-head">
+        <span class="pl-card-title">Launch sites</span>
+        <span class="pl-muted" id="sites-count"></span>
+      </div>
+      <div class="pl-row pl-row-tight">
+        <button id="btn-select-all" class="pl-mini">Select all</button>
+        <button id="btn-select-none" class="pl-mini">None</button>
+      </div>
+      <div id="sites-list" class="pl-sites-list"></div>
+      <button id="btn-generate" class="pl-btn pl-btn-full">Generate Answers</button>
+    </section>
+
+    <!-- generated answer sets -->
+    <section id="generated-card" class="pl-card pl-hidden">
+      <div class="pl-card-head">
+        <span class="pl-card-title">Generated</span>
+        <span class="pl-muted" id="generated-count"></span>
+      </div>
+      <div id="generated-list" class="pl-generated-list"></div>
+    </section>
+
+    <!-- current tab fill -->
+    <section id="fill-card" class="pl-card pl-fill-card">
+      <div class="pl-card-head">
+        <span class="pl-card-title">This page</span>
+        <span class="pl-muted" id="current-host"></span>
+      </div>
+      <div id="match-info" class="pl-match-info">Open a launch site, then click below.</div>
+      <button id="btn-fill" class="pl-btn pl-btn-primary pl-btn-full" disabled>Fill This Page</button>
+      <div id="fill-result" class="pl-fill-result pl-hidden"></div>
+
+      <div id="auth-block" class="pl-auth-block pl-hidden">
+        <div class="pl-auth-notes" id="auth-notes"></div>
+        <button id="btn-signin" class="pl-btn pl-btn-ghost pl-btn-full">Help me sign in</button>
+      </div>
+
+      <ul id="notes-list" class="pl-notes pl-hidden"></ul>
+    </section>
+  </main>
+
+  <div id="status" class="pl-status pl-hidden" role="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

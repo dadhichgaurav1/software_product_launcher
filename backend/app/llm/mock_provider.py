@@ -36,9 +36,11 @@ _ICP_HINTS = [
     (r"for sales|sales teams|crm", "Sales teams"),
 ]
 
+# Stems (no trailing \b) so verb/plural forms match: reduces, automates, boosts…
 _BENEFIT_CUES = re.compile(
-    r"\b(save[s]? (time|money)|faster|automate|increase|boost|reduce|effortless|"
-    r"instantly|in seconds|no more|without|easily|seamless|10x|grow|scale)\b",
+    r"\b(save[sd]?\s+(?:time|money|hours)|ships?\s+faster|faster|automat\w*|"
+    r"increas\w*|boost\w*|reduc\w*|effortless\w*|instant\w*|in seconds|no more|"
+    r"without|easily|seamless\w*|10x|grow\w*|scale[sd]?|streamlin\w*|improv\w*)",
     re.I,
 )
 
@@ -243,9 +245,14 @@ class MockProvider(LLMProvider):
     def _benefits(self, pages: list[ScannedPage]) -> list[str]:
         benefits: list[str] = []
         seen: set[str] = set()
+        # Use clean per-element units (paragraphs, list items) rather than the
+        # concatenated page text, then fall back to whole-page sentences.
         for p in pages:
-            for s in _sentences(p.text):
-                if _BENEFIT_CUES.search(s) and 15 <= len(s) <= 160:
+            units = [s for para in p.paragraphs for s in _sentences(para)]
+            units += [_clean(li) for li in p.list_items]
+            units += _sentences(p.text)
+            for s in units:
+                if _BENEFIT_CUES.search(s) and 12 <= len(s) <= 200:
                     key = s.lower()
                     if key not in seen:
                         seen.add(key)
