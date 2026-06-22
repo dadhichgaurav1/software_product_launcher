@@ -40,6 +40,20 @@ class Settings:
     # Force a provider regardless of key presence: "openai" | "mock" | "auto"
     llm_provider: str = os.getenv("LLM_PROVIDER", "auto").lower()
 
+    # Per-task model routing. Each defaults to LLM_MODEL so out-of-the-box
+    # behaviour is unchanged (and the default is a known-valid model id — no
+    # accidental 404s). Override per task for optimal cost/quality, e.g.
+    # LLM_MODEL_ANALYZE=gpt-5.4, LLM_MODEL_GENERATE=gpt-5.4-mini, etc.
+    llm_model_analyze: str = os.getenv("LLM_MODEL_ANALYZE", os.getenv("LLM_MODEL", "gpt-4o-mini"))
+    llm_model_generate: str = os.getenv("LLM_MODEL_GENERATE", os.getenv("LLM_MODEL", "gpt-4o-mini"))
+    llm_model_revise: str = os.getenv("LLM_MODEL_REVISE", os.getenv("LLM_MODEL", "gpt-4o-mini"))
+    llm_model_reason: str = os.getenv("LLM_MODEL_REASON", os.getenv("LLM_MODEL", "gpt-4o-mini"))
+    # "" => not sent. One of: auto | default | flex | scale | priority.
+    llm_service_tier: str = os.getenv("LLM_SERVICE_TIER", "")
+    llm_prompt_cache_key: str = os.getenv("LLM_PROMPT_CACHE_KEY", "")
+    # Use OpenAI Structured Outputs (chat.completions.parse) for analysis.
+    llm_structured_outputs: bool = _bool("LLM_STRUCTURED_OUTPUTS", True)
+
     # --- Storage -----------------------------------------------------------
     data_dir: Path = Path(os.getenv("DATA_DIR", str(BACKEND_DIR / "data")))
 
@@ -71,6 +85,16 @@ class Settings:
             return self.llm_provider
         # auto
         return "openai" if self.openai_api_key else "mock"
+
+    def model_for(self, task: str) -> str:
+        """Return the configured model id for a task ("analyze"|"generate"|
+        "revise"|"reason"), falling back to the global default."""
+        return {
+            "analyze": self.llm_model_analyze,
+            "generate": self.llm_model_generate,
+            "revise": self.llm_model_revise,
+            "reason": self.llm_model_reason,
+        }.get(task, self.llm_model)
 
     def ensure_dirs(self) -> None:
         self.products_dir.mkdir(parents=True, exist_ok=True)

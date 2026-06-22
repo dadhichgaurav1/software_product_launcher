@@ -146,6 +146,65 @@ class MockProvider(LLMProvider):
             text = text.title()
         return _clean(text)
 
+    def extract_learnings(
+        self,
+        *,
+        product: Product,
+        site: LaunchSite,
+        copy: object,
+        outcomes: list,
+    ) -> list[str]:
+        """Deterministic after-action reasoning so the learning loop works offline.
+        (OpenAIProvider does richer synthesis; this covers the common signals.)"""
+        def _num(o, attr) -> int:
+            v = getattr(o, attr, None)
+            return int(v) if isinstance(v, (int, float)) else 0
+
+        points = max((_num(o, "points") for o in outcomes), default=0)
+        ranks = [getattr(o, "rank", None) for o in outcomes if getattr(o, "rank", None)]
+        rank = min(ranks) if ranks else None
+        signups = max((_num(o, "signups") for o in outcomes), default=0)
+        status = (getattr(outcomes[-1], "status", "") or "").lower() if outcomes else ""
+        tagline = getattr(copy, "tagline", "") or ""
+        has_emoji = any(ord(c) >= 0x2600 for c in tagline)
+
+        out: list[str] = []
+        if points >= 50 or (rank is not None and rank <= 5):
+            out.append(
+                f"On {site.name}, the benefit-led tagline and clear category framing "
+                f"performed well — keep that angle for similar platforms."
+            )
+            if has_emoji:
+                out.append(f"An emoji in the {site.name} tagline didn't hurt; keep it tasteful.")
+        elif status in {"rejected", "removed"}:
+            out.append(
+                f"On {site.name}, tighten the description and lead with the concrete "
+                f"category to clear review next time."
+            )
+        elif outcomes:
+            out.append(
+                f"On {site.name}, results were modest — test a sharper, outcome-first "
+                f"tagline and submit earlier in the cycle."
+            )
+        if points and signups == 0:
+            out.append(
+                "Upvotes didn't convert to signups: strengthen the website's first-line "
+                "hook and primary CTA before the next launch."
+            )
+        if not out:
+            out.append(
+                f"Logged a launch on {site.name}; gather more outcome signal to derive a "
+                f"reliable learning."
+            )
+        seen: set[str] = set()
+        uniq: list[str] = []
+        for s in out:
+            k = s.lower()
+            if k not in seen:
+                seen.add(k)
+                uniq.append(s)
+        return uniq[:3]
+
     def complete(self, system: str, user: str, max_tokens: int = 512) -> str:
         # Deterministic: return the first few sentences of the user content.
         return " ".join(_sentences(user)[:3])

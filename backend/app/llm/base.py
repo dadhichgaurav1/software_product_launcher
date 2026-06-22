@@ -50,5 +50,19 @@ class LLMProvider(ABC):
         instruction (e.g. 'make it punchier', 'shorten', 'add the AI angle')."""
 
     @abstractmethod
+    def extract_learnings(
+        self,
+        *,
+        product: Product,
+        site: LaunchSite,
+        copy: object,
+        outcomes: list,
+    ) -> list[str]:
+        """Reason over a launch's submitted copy + measured outcomes and return
+        1-3 concise, reusable learnings to improve the next launch. ``copy`` is a
+        CopySnapshot and ``outcomes`` a list of LaunchOutcome (duck-typed here to
+        avoid an import cycle)."""
+
+    @abstractmethod
     def complete(self, system: str, user: str, max_tokens: int = 512) -> str:
         """Generic text completion (used for misc. summarization tasks)."""
