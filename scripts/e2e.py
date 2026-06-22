@@ -137,6 +137,22 @@ def main() -> int:
     hist = client.get("/api/chat/history", params={"url": BASE}).json()["chat"]
     check(len(hist) >= 2, "chat history persisted (user + assistant)")
 
+    section("8b. Agent-chat: set a NAMED url field to a literal value (honesty)")
+    link = "https://synap.example/playground"
+    before = client.get("/api/answers/devhunt", params={"url": BASE}).json()
+    tag_before = next(a for a in before["answers"] if a["question_id"] == "tagline")["value"]
+    setres = client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["devhunt", "betalist"], "instruction": f"For demo URL, just use {link}",
+    }).json()
+    print(f"   assistant: {setres['assistant']}")
+    dh = next(s for s in setres["answer_sets"] if s["site_id"] == "devhunt")
+    demo = next(a for a in dh["answers"] if a["question_id"] == "demo_video")
+    check(demo["value"] == link, "named url field (demo_video) actually set to the value")
+    check(setres["changed_fields"] == 1, "change count is accurate (no broadcast to other fields)")
+    tag_after = next(a for a in dh["answers"] if a["question_id"] == "tagline")["value"]
+    check(tag_after == tag_before, "unrelated fields untouched when a field is named")
+    check("No matching field" in setres["assistant"], "honestly reports BetaList lacks a demo field")
+
     section("9. Generate across ALL 20 sites")
     all_gen = client.post("/api/generate", json={"url": BASE}).json()
     check(all_gen["count"] == 20, f"generated drafts for all {all_gen['count']} sites")

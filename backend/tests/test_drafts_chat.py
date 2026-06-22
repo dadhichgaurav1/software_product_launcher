@@ -112,3 +112,63 @@ def test_chat_field_focus_only_touches_targeted_field(client):
 def test_chat_requires_drafts(client):
     r = client.post("/api/chat", json={"url": "https://never-scanned.example", "instruction": "shorten"})
     assert r.status_code == 404
+
+
+# --- the reported bug: "claims changes but didn't" on a named url field -----
+def test_chat_sets_named_url_field_directly(client):
+    """Regression: 'For demo URL, just use <url>' must actually set the demo
+    field (type=url) — previously url fields were skipped while the summary
+    falsely claimed success."""
+    before = client.get("/api/answers/devhunt", params={"url": BASE}).json()
+    tag_before = next(a for a in before["answers"] if a["question_id"] == "tagline")["value"]
+    link = "https://synap.example/playground"
+
+    r = client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["devhunt"], "instruction": f"For demo URL, just use {link}",
+    })
+    body = r.json()
+    demo = next(a for a in body["answer_sets"][0]["answers"] if a["question_id"] == "demo_video")
+    assert demo["value"] == link, "the named url field must be set to the literal value"
+    assert demo["edited"] is True
+    # the fill plan must carry the new value too (so the extension fills it)
+    step = next(s for s in body["answer_sets"][0]["fill_plan"] if s["question_id"] == "demo_video")
+    assert step["value"] == link
+    # honesty: summary reflects a set, and the count is NOT inflated to all fields
+    assert "Set" in body["assistant"]
+    assert body["changed_fields"] == 1
+    # an unrelated text field must be untouched (no broadcast)
+    tag_after = next(a for a in body["answer_sets"][0]["answers"] if a["question_id"] == "tagline")["value"]
+    assert tag_after == tag_before
+
+
+def test_chat_reports_when_named_field_absent(client):
+    # BetaList has no demo/video field — must say so, not claim success.
+    r = client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["betalist"],
+        "instruction": "set the demo url to https://x.example/p",
+    })
+    body = r.json()
+    assert body["changed_fields"] == 0
+    assert "betalist" not in body["updated_site_ids"]
+    assert "No matching field" in body["assistant"]
+
+
+def test_chat_literal_without_named_field_asks_instead_of_guessing(client):
+    r = client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["devhunt"], "instruction": "just use https://x.example here",
+    })
+    body = r.json()
+    assert body["changed_fields"] == 0
+    assert "which field" in body["assistant"].lower()
+
+
+def test_chat_set_idempotent_value_counts_zero(client):
+    link = "https://synap.example/demo"
+    client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["devhunt"], "instruction": f"set the demo url to {link}",
+    })
+    # setting the same value again changes nothing — must not claim a change
+    r2 = client.post("/api/chat", json={
+        "url": BASE, "site_ids": ["devhunt"], "instruction": f"set the demo url to {link}",
+    })
+    assert r2.json()["changed_fields"] == 0

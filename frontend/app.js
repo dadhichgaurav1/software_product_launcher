@@ -287,7 +287,8 @@ function renderChat() {
   const log = $("chat-log");
   if (!state.chat.length) {
     log.innerHTML = `<div class="chat-empty">Ask me to refine the drafts — e.g. “shorten the
-      taglines”, “make it more professional”, “lead with the benefit”, “add an emoji”.</div>`;
+      taglines”, “make it more professional”, “lead with the benefit”, or set a specific
+      field: “set the demo URL to https://…”.</div>`;
     return;
   }
   log.innerHTML = state.chat.map((m) => `
