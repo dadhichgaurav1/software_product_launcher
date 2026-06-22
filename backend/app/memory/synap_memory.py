@@ -191,8 +191,13 @@ class SynapMemory(MemoryProvider):
         return {"provider": "synap", "enabled": self._initialized, "customer_id": self._customer}
 
     def close(self) -> None:
-        """Stop the loop thread (used on reset to avoid thread accumulation)."""
+        """Cleanly shut the SDK down (cancels its telemetry task), then stop the
+        loop thread — avoids 'Task was destroyed but it is pending' on reset."""
         try:
-            self._loop.call_soon_threadsafe(self._loop.stop)
-        except Exception:  # noqa: BLE001
-            pass
+            if getattr(self, "_sdk", None) is not None and hasattr(self._sdk, "shutdown"):
+                self._safe(self._sdk.shutdown(), "shutdown")
+        finally:
+            try:
+                self._loop.call_soon_threadsafe(self._loop.stop)
+            except Exception:  # noqa: BLE001
+                pass
