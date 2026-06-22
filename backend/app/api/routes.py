@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from ..config import settings
 from ..llm.factory import get_provider
+from ..memory.factory import get_memory
 from ..registry import sites as registry
 from . import services
 
@@ -45,6 +46,7 @@ def health():
         "status": "ok",
         "provider": get_provider().name,
         "model": settings.llm_model,
+        "memory": get_memory().health(),
         "sites": len(registry.all_sites()),
     }
 

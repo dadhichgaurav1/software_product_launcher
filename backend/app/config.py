@@ -54,6 +54,17 @@ class Settings:
     # Use OpenAI Structured Outputs (chat.completions.parse) for analysis.
     llm_structured_outputs: bool = _bool("LLM_STRUCTURED_OUTPUTS", True)
 
+    # --- Memory (Synap) ----------------------------------------------------
+    # Optional agent-memory layer (maximem Synap). When no key is present the
+    # NullMemory provider is used and the product behaves exactly as before.
+    synap_api_key: str | None = os.getenv("SYNAP_API_KEY")
+    synap_instance_id: str = os.getenv("SYNAP_INSTANCE_ID", "")
+    synap_customer_id: str = os.getenv("SYNAP_CUSTOMER_ID", "software-product-launcher")
+    synap_timeout_s: int = _int("SYNAP_TIMEOUT_S", 6)
+    synap_max_recall: int = _int("SYNAP_MAX_RECALL", 8)
+    # "synap" | "null" | "auto"
+    memory_provider: str = os.getenv("MEMORY_PROVIDER", "auto").lower()
+
     # --- Storage -----------------------------------------------------------
     data_dir: Path = Path(os.getenv("DATA_DIR", str(BACKEND_DIR / "data")))
 
@@ -85,6 +96,12 @@ class Settings:
             return self.llm_provider
         # auto
         return "openai" if self.openai_api_key else "mock"
+
+    def resolved_memory(self) -> str:
+        """Decide which memory provider to use given config + key availability."""
+        if self.memory_provider in {"synap", "null"}:
+            return self.memory_provider
+        return "synap" if self.synap_api_key else "null"
 
     def model_for(self, task: str) -> str:
         """Return the configured model id for a task ("analyze"|"generate"|

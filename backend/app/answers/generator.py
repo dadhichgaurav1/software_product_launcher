@@ -36,12 +36,42 @@ def fill_step_for(question: Question, value: str) -> FillStep | None:
 
 
 class AnswerGenerator:
-    def __init__(self, provider: LLMProvider | None = None, researcher=None) -> None:
+    def __init__(self, provider: LLMProvider | None = None, researcher=None, memory=None, learnings=None) -> None:
         self.provider = provider or get_provider()
         self.researcher = researcher
+        self.memory = memory  # optional MemoryProvider for recall grounding
+        # optional callable: (site_id) -> list[str] of post-launch learnings
+        self.learnings = learnings
+
+    def _practices_for(self, product: Product, site: LaunchSite) -> list[str]:
+        """Curated best-practices + memory recall + post-launch learnings,
+        de-duplicated on normalised text and capped so the prompt stays lean."""
+        practices = get_best_practices(site, researcher=self.researcher)
+        extra: list[str] = []
+        if self.learnings is not None:
+            try:
+                extra.extend(self.learnings(site.id) or [])
+            except Exception:  # noqa: BLE001
+                pass
+        if self.memory is not None:
+            try:
+                extra.extend(
+                    self.memory.recall(
+                        product.url, query=f"{site.name} {product.tagline}".strip(), site_id=site.id
+                    )
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        seen = {p.strip().lower() for p in practices}
+        for e in extra:
+            key = (e or "").strip().lower()
+            if key and key not in seen:
+                seen.add(key)
+                practices.append(e)
+        return practices
 
     def generate(self, product: Product, site: LaunchSite) -> AnswerSet:
-        practices = get_best_practices(site, researcher=self.researcher)
+        practices = self._practices_for(product, site)
         answers: list[Answer] = []
         fill_plan: list[FillStep] = []
         notes: list[str] = []

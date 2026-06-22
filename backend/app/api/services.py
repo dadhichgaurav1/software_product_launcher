@@ -14,6 +14,7 @@ from ..answers.generator import AnswerGenerator, fill_step_for
 from ..answers.fit import fit_text
 from ..config import settings
 from ..llm.factory import get_provider
+from ..memory.factory import get_memory
 from ..models import Answer, AnswerSet, ChatMessage, DraftBundle, Product
 from ..registry import sites as registry
 from ..store.draft_store import DraftStore
@@ -50,7 +51,18 @@ def get_generator() -> AnswerGenerator:
     researcher = None
     if provider.name == "openai":
         researcher = live_researcher(provider)
-    return AnswerGenerator(provider=provider, researcher=researcher)
+    return AnswerGenerator(
+        provider=provider,
+        researcher=researcher,
+        memory=get_memory(),
+        learnings=learnings_for_site,
+    )
+
+
+def learnings_for_site(site_id: str) -> list[str]:
+    """Post-launch learnings to feed forward into generation. Populated by the
+    learning loop (Phase 3); returns [] until launches have been reflected on."""
+    return []
 
 
 # -- operations -------------------------------------------------------------
@@ -63,7 +75,9 @@ def scan(url: str, force: bool = False) -> Product:
             log.info("Returning cached product for %s (v%s)", url, existing.version)
             return existing
     product = get_analyzer().analyze(url)
-    return st.save(product, force=force)
+    saved = st.save(product, force=force)
+    get_memory().remember_product(saved)
+    return saved
 
 
 def get_product(url: str) -> Product | None:
@@ -149,6 +163,7 @@ def update_answer(url: str, site_id: str, question_id: str, value: str) -> Answe
 
     bundle.answer_sets[site_id] = aset
     drafts().save(bundle)
+    get_memory().remember_edit(url, site_id, answer.label, value)
     return aset
 
 
@@ -296,6 +311,7 @@ def chat_revise(url: str, instruction: str, site_ids: list[str] | None = None) -
         ChatMessage(role="assistant", content=summary, scope=scope, affected_sites=changed_sites)
     )
     drafts().save(bundle)
+    get_memory().remember_instruction(url, instruction, scope, summary)
     return {
         "assistant": summary,
         "changed_fields": len(changed),
