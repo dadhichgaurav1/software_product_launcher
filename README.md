@@ -43,9 +43,12 @@ This is the "right sequence of execution" derived from the requirements:
    **agent chat** iterates on the drafts across all selected sites (e.g. “make
    all taglines punchier”, “lead with the benefit”, “add an emoji”). Edits and
    revisions persist and feed the fill plan.
-9. **Fill** — the Chrome extension signs in (or creates an account) with the
-   user's Google/GitHub/email, fills every fillable field, and leaves the form
-   **ready for manual review and submit**.
+9. **Fill** — click **“Open & Fill”** on a site (or **“Open & fill all”**) right
+   from the web page: it opens the launch site and **triggers the extension**,
+   sharing the product + backend so it pulls the *same* drafts (no popup, no
+   re-entering anything). The launch-site tab shows an in-page panel to **sign in**
+   (Google/GitHub/email) and **fill every field**, left **ready for manual review
+   and submit**.
 
 ---
 
@@ -73,9 +76,11 @@ Open **http://127.0.0.1:8000/** for the web page, **/docs** for the API.
 
 1. `chrome://extensions` → enable **Developer mode**.
 2. **Load unpacked** → select the `extension/` folder.
-3. Open the popup → set the Backend URL (default `http://127.0.0.1:8000`) and
-   your product URL.
-4. Visit a launch site, open the popup, and click **Fill This Page**.
+3. Reload the web page (`http://127.0.0.1:8000`). It shows **“Extension
+   connected”** — the page and extension now share the session automatically.
+4. Scan → Generate, then click **“Open & Fill”** on any site. Its tab opens with
+   an in-page **Sign in** / **Fill this page** panel — no popup, nothing to
+   re-enter. (The popup still works as a manual fallback.)
 
 See [`extension/README.md`](extension/README.md) for details.
 

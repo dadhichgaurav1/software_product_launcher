@@ -59,6 +59,7 @@ def list_sites():
                 "id": s.id,
                 "name": s.name,
                 "url": s.url,
+                "submit_url": s.submit_url or s.url,
                 "description": s.description,
                 "tags": s.tags,
                 "fee": s.fee,

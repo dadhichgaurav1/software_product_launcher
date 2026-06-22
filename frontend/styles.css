@@ -123,6 +123,26 @@ button:disabled { opacity: .5; cursor: progress; }
 .badge.req { color: var(--warn); border-color: var(--warn); }
 .badge.trunc { color: var(--accent); }
 .copy-btn { font-size: 12px; padding: 6px 10px; }
+/* extension status bar + triggers */
+.ext-bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 10px 12px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+}
+.ext-status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.ext-status .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 3px rgba(151,160,189,.15); }
+.ext-status.connected { color: var(--accent-2); }
+.ext-status.connected .dot { background: var(--accent-2); box-shadow: 0 0 0 3px rgba(70,211,160,.18); }
+.ext-status.missing { color: var(--warn); }
+.ext-status.missing .dot { background: var(--warn); box-shadow: 0 0 0 3px rgba(244,166,74,.18); }
+.ext-bar #fill-all-btn { margin-left: auto; }
+.ext-bar a { color: var(--accent); }
+.open-fill {
+  font-size: 12px; padding: 6px 11px; border-radius: 8px; font-weight: 600;
+  background: var(--accent); border: 1px solid var(--accent); color: #fff;
+}
+.open-fill:hover { filter: brightness(1.08); }
+.open-fill:disabled { opacity: .5; }
+
 /* review layout: answers + chat panel */
 .review-layout { display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
 @media (max-width: 860px) { .review-layout { grid-template-columns: 1fr; } }

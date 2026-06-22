@@ -39,8 +39,11 @@ def test_list_sites(client):
     r = client.get("/api/sites")
     assert r.status_code == 200
     assert r.json()["count"] == 20
-    ids = {s["id"] for s in r.json()["sites"]}
+    sites = r.json()["sites"]
+    ids = {s["id"] for s in sites}
     assert "betalist" in ids and "showhn" in ids
+    # the web page needs submit_url to know where to open each site for filling
+    assert all(s.get("submit_url") for s in sites)
 
 
 def test_scan_then_cached_then_force(client):

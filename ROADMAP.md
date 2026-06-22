@@ -27,6 +27,11 @@ the build goal.
 - **Chrome extension (MV3)** — popup UI, background worker, content script, and a
   unit‑tested **fill engine** (React/Vue‑safe native value + event dispatch),
   current‑tab→site matching, and sign‑in button detection.
+- **Web ↔ extension integration** — the web page **detects** the extension and
+  **triggers** it (“Open & Fill”), sharing the product + backend so the extension
+  pulls the *same* drafts (config auto‑synced). The launch‑site tab shows an
+  in‑page Sign‑in / Fill panel — no popup, nothing re‑entered. Verified by a
+  mocked‑`chrome` Node test of the message protocol.
 - **Tests** — `pytest` suite + `scripts/e2e.py` (full pipeline through the HTTP
   API) + Node test for the fill engine.
 

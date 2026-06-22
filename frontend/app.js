@@ -27,6 +27,56 @@ const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const hostname = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 
+// ---- extension bridge -----------------------------------------------------
+const ext = { connected: false };
+function extPost(type, payload) {
+  window.postMessage({ source: "spl-web", type, payload: payload || {} }, window.location.origin);
+}
+window.addEventListener("message", (e) => {
+  if (e.source !== window) return;
+  const d = e.data;
+  if (!d || d.source !== "spl-ext") return;
+  if (d.type === "EXT_READY") { setExtConnected(true); syncExt(); }
+  if (d.type === "LAUNCH_FILL_ACK" && d.ok === false) {
+    setStatus("generate-status", "Extension error: " + (d.error || "failed to open"), "err");
+  }
+});
+function setExtConnected(on) {
+  ext.connected = on;
+  const el = $("ext-status");
+  if (el) {
+    el.className = "ext-status " + (on ? "connected" : "missing");
+    el.innerHTML = on
+      ? '<span class="dot"></span> Extension connected — use “Open &amp; Fill” to launch a site.'
+      : '<span class="dot"></span> Extension not detected — load it from <code>extension/</code> in Chrome, then reload.';
+  }
+  const fa = $("fill-all-btn");
+  if (fa) fa.disabled = !on || !state.answerSets.length;
+  document.querySelectorAll(".open-fill").forEach((b) => (b.disabled = !on));
+}
+function syncExt() {
+  if (ext.connected && state.product) {
+    extPost("SYNC_CONFIG", { backend: window.location.origin, product_url: state.product.url });
+  }
+}
+function launchFill(siteId) {
+  const site = state.sites.find((s) => s.id === siteId);
+  if (!state.product || !site) return;
+  if (!ext.connected) { setStatus("generate-status", "Install/load the browser extension to auto-open & fill.", "err"); return; }
+  extPost("LAUNCH_FILL", {
+    backend: window.location.origin,
+    product_url: state.product.url,
+    site_id: site.id,
+    site_name: site.name,
+    site_url: site.submit_url || site.url,
+  });
+  setStatus("generate-status", `Opening ${site.name} — its tab will show a “Fill this page” button.`, "ok");
+}
+function launchFillAll() {
+  if (!ext.connected) { setStatus("generate-status", "Install/load the browser extension first.", "err"); return; }
+  state.answerSets.forEach((s, i) => setTimeout(() => launchFill(s.site_id), i * 700));
+}
+
 // ---- boot -----------------------------------------------------------------
 async function boot() {
   try {
@@ -37,7 +87,11 @@ async function boot() {
     $("provider-badge").textContent = "backend offline";
   }
   await loadRecent();
+  setExtConnected(false);            // initial state until the bridge announces
+  pingExt(); setTimeout(pingExt, 700); // prompt the extension to announce itself
 }
+
+function pingExt() { extPost("PING_EXT"); }
 
 async function loadRecent() {
   try {
@@ -61,6 +115,7 @@ async function doScan(forceFromBtn) {
     const product = await api("/api/scan", { method: "POST", body: JSON.stringify({ url, force }) });
     state.product = product;
     renderProduct(product);
+    syncExt();
     setStatus("scan-status", `Understood "${product.name}" — stored as JSON v${product.version}.`, "ok");
     await ensureSites();
     $("sites-card").classList.remove("hidden");
@@ -173,6 +228,7 @@ function showReview() {
   renderAnswers();
   populateScope();
   renderChat();
+  setExtConnected(ext.connected); // refresh Open & Fill button states
 }
 
 function setOf(id) { return state.answerSets.find((s) => s.site_id === id); }
@@ -191,6 +247,7 @@ function renderAnswers() {
         <div class="right">
           <span class="pill">${filled}/${set.answers.length} filled</span>
           <span class="pill alt">${esc(set.auth.type)} sign-in</span>
+          <button class="open-fill" data-site="${esc(set.site_id)}" ${ext.connected ? "" : "disabled"}>Open &amp; Fill</button>
           <button class="copy-btn ghost">Copy all</button>
         </div>
       </div>
@@ -200,10 +257,11 @@ function renderAnswers() {
         ${site.url ? `<p class="hint">Open <a href="${esc(site.url)}" target="_blank">${esc(site.name)}</a>, then use the extension's “Fill This Page”.</p>` : ""}
       </div>`;
     div.querySelector(".answer-head").addEventListener("click", (e) => {
-      if (e.target.classList.contains("copy-btn")) return;
+      if (e.target.classList.contains("copy-btn") || e.target.classList.contains("open-fill")) return;
       div.classList.toggle("open");
     });
     div.querySelector(".copy-btn").addEventListener("click", () => copyAll(set, div));
+    div.querySelector(".open-fill").addEventListener("click", (e) => { e.stopPropagation(); launchFill(set.site_id); });
     div.querySelectorAll("textarea.a-edit").forEach(wireEditor);
     wrap.appendChild(div);
   });
@@ -361,6 +419,7 @@ $("generate-btn").addEventListener("click", doGenerate);
 $("site-filter").addEventListener("input", renderSites);
 $("select-all").addEventListener("click", () => { state.sites.forEach((s) => state.selected.add(s.id)); renderSites(); $("selected-count").textContent = `${state.selected.size} selected`; });
 $("select-none").addEventListener("click", () => { state.selected.clear(); renderSites(); $("selected-count").textContent = "0 selected"; });
+$("fill-all-btn").addEventListener("click", launchFillAll);
 $("chat-form").addEventListener("submit", (e) => { e.preventDefault(); sendChat(); });
 $("chat-text").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendChat(); }

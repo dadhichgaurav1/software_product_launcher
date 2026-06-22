@@ -13,11 +13,13 @@ leaves every form ready for you to review and submit.
 | --- | --- |
 | `manifest.json` | MV3 manifest. |
 | `fill_engine.js` | **Core**, pure & unit-tested. Resolves selectors, sets native input values (so React/Vue notice), runs the fill plan, detects auth buttons. |
-| `content.js` | Page-side message handler (`FILL`, `DETECT_AUTH`, `CLICK_AUTH`, `PING`). Delegates all DOM work to `FillEngine`. |
-| `background.js` | MV3 service worker. Seeds default config; provides a backend-fetch bridge. |
-| `popup.html/.js/.css` | The UI: scan, load sites, generate answers, fill the current page, sign-in assist. |
+| `content.js` | Page-side message handler (`FILL`, `DETECT_AUTH`, `CLICK_AUTH`, `PING`) **and the in-page Fill panel** shown when the web page arms a task. Delegates DOM work to `FillEngine`. |
+| `bridge.js` | Content script injected into the **web app** (localhost). Announces the extension to the page and relays `SYNC_CONFIG` / `LAUNCH_FILL` to the worker — this is what lets the web page trigger the extension. |
+| `background.js` | MV3 service worker. Seeds config; backend-fetch proxy (CORS-safe); arms/serves per-site fill **tasks** in session storage. |
+| `popup.html/.js/.css` | Manual-fallback UI: scan, load sites, generate, fill current page, sign-in assist. |
 | `options.html/.js` | Settings: Backend Base URL and default Product URL. |
-| `test/fill_engine.test.js` | Self-contained Node test for the core engine (no dependencies). |
+| `test/fill_engine.test.js` | Self-contained Node test for the core engine. |
+| `test/bridge.test.js` | Node test for the web↔extension message protocol (mocked `chrome`). |
 | `icons/` | Place real PNG icons here (optional — Chrome shows a default without them). |
 
 ## Install (load unpacked)
@@ -36,7 +38,24 @@ leaves every form ready for you to review and submit.
   default Product URL. Both are stored in `chrome.storage.local` and shared by
   the popup, options page and service worker.
 
-## Typical flow
+## Recommended flow — triggered from the web page (no popup)
+
+Once the extension is loaded, the web app (`http://127.0.0.1:8000`) detects it and
+shows **“Extension connected.”** The page and extension then share the session
+automatically — you never re-enter the product URL or backend in the extension.
+
+1. In the **web page**, Scan → Generate your drafts as usual.
+2. Click **“Open & Fill”** on a site (or **“Open & fill all”**). The page tells the
+   extension which product + site, and the extension opens that launch site.
+3. The launch-site tab shows a small **Product Launcher panel** (bottom-right):
+   - **Help me sign in** — detects & clicks the Google/GitHub sign-in button.
+   - **Fill this page** — pulls the *same* draft from your backend and fills every
+     field (green = filled, orange = needs you, e.g. file uploads).
+4. Review and **submit** yourself.
+
+No popup, no copy-paste — the web page drives the whole thing.
+
+## Manual fallback flow (popup)
 
 1. Enter your **Product URL** and click **Scan & Understand**
    (`POST /api/scan`) — the popup shows the product name, tagline and logo.
@@ -81,13 +100,14 @@ The extension never handles your credentials.
 
 ```bash
 cd extension
-node test/fill_engine.test.js
+node test/fill_engine.test.js   # fill engine: selectors, native values, plan outcomes
+node test/bridge.test.js        # web<->extension protocol: LAUNCH_FILL/GET_TASK/FETCH_ANSWERS
 ```
 
-It builds a minimal in-memory DOM and asserts the fill engine's behaviour
-(native value setting + events, fill/select/check/upload outcomes, plan
-aggregation, auth-button detection). On success it prints
-`fill_engine tests passed: N` and exits 0.
+The first builds a minimal in-memory DOM and asserts the fill engine's behaviour;
+the second mocks `chrome` + `fetch` and verifies the background worker arms tasks,
+serves them to the launch-site tab, and proxies the backend answers fetch. Both
+print a pass line and exit 0.
 
 ## Notes / limitations
 

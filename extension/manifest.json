@@ -5,8 +5,8 @@
   "description": "Agentic helper that auto-fills software-product submission forms across ~20 launch directories and assists with Google/GitHub sign-in.",
   "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "host_permissions": [
-    "http://127.0.0.1:8000/*",
-    "http://localhost:8000/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*",
     "https://*/*"
   ],
   "background": {
@@ -21,6 +21,11 @@
       "matches": ["https://*/*"],
       "js": ["fill_engine.js", "content.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["http://127.0.0.1/*", "http://localhost/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_start"
     }
   ],
   "options_page": "options.html",
