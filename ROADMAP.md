@@ -32,8 +32,24 @@ the build goal.
   pulls the *same* drafts (config auto‑synced). The launch‑site tab shows an
   in‑page Sign‑in / Fill panel — no popup, nothing re‑entered. Verified by a
   mocked‑`chrome` Node test of the message protocol.
-- **Tests** — `pytest` suite + `scripts/e2e.py` (full pipeline through the HTTP
-  API) + Node test for the fill engine.
+- **Per‑task OpenAI model routing + Structured Outputs** — analyze / generate /
+  revise / reason each take their own model (env‑overridable); product analysis
+  uses `chat.completions.parse` with a strict‑safe Pydantic schema and degrades
+  parse → JSON mode → mock. Defaults stay `gpt-4o-mini` (no invalid‑model errors);
+  optimal routing + caching + service‑tier are opt‑in. Offline unit‑tested.
+- **Agent memory (Synap)** — optional `MemoryProvider` (NullMemory default) that
+  remembers the product, inline edits and chat style‑instructions and recalls them
+  to ground generation. SynapMemory bridges the async maximem‑synap SDK to the
+  sync backend with bounded timeouts and graceful degradation. Offline‑tested with
+  a fake async SDK; `scripts/synap_smoke.py` is the live round‑trip.
+- **Post‑launch learning loop** — capture the submitted copy, log an outcome
+  (manual / Show‑HN API / UTM), run after‑action reasoning to derive learnings,
+  and **feed them into the best‑practices for the next generation** (loop closed,
+  proven by a test that spies on the practices into the next generate). Endpoints
+  `/api/launch`, `/api/outcome`, `/api/launches`, `/api/learnings`; a web “After
+  launch” panel; per‑product + shared global learning stores.
+- **Tests** — `pytest` suite (66) + `scripts/e2e.py` (full pipeline incl. the
+  learning loop) + Node tests for the fill engine and the web↔extension protocol.
 
 ## 🚧 Remaining — needs live credentials/network (scaffolded + noted)
 
@@ -49,10 +65,14 @@ the build goal.
    and is out of scope for a review‑then‑submit tool.
 
 3. **Live OpenAI generation.**
-   `OpenAIProvider` is implemented (JSON‑mode analysis + per‑field generation with
-   graceful fallback). It is verified here via the deterministic mock because this
-   environment has **no key and no outbound network**. Set `OPENAI_API_KEY` to
-   enable production‑grade copy — no code change needed.
+   `OpenAIProvider` is implemented (Structured‑Outputs analysis + per‑task model
+   routing + per‑field generation with graceful fallback). It is verified here via
+   the deterministic mock because this environment has **no key and no outbound
+   network**. Set `OPENAI_API_KEY` (and optionally the `LLM_MODEL_*` routing vars)
+   to enable production‑grade copy — no code change needed.
+
+   **Live Synap memory** is likewise implemented and offline‑tested; set
+   `SYNAP_API_KEY` and run `scripts/synap_smoke.py` for the live round‑trip.
 
 4. **Live best‑practice research** (search communities/blogs + each launch site's
    own page). A pluggable `live_researcher` hook is implemented and wired into the
