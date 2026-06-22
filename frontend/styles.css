@@ -199,3 +199,24 @@ footer {
 }
 footer a { color: var(--accent); }
 @media (max-width: 760px) { .product-grid { grid-template-columns: 1fr; } }
+
+/* Post-launch learning panel */
+.launch-panel { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.launch-panel > summary {
+  cursor: pointer; padding: 10px 12px; font-size: 13px; color: var(--accent-2);
+  list-style: none; user-select: none;
+}
+.launch-panel > summary::-webkit-details-marker { display: none; }
+.launch-panel[open] > summary { border-bottom: 1px solid var(--line); }
+.launch-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.outcome-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.outcome-form select, .outcome-form input { padding: 8px 10px; font-size: 13px; }
+.outcome-form input[type="number"] { width: 130px; }
+.outcome-form input.o-notes { flex: 1; min-width: 160px; }
+.launch-panel .learnings {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 12px; font-size: 13px;
+}
+.launch-panel .learnings strong { color: var(--accent-2); }
+.launch-panel .learnings ul { margin: 6px 0 0; padding-left: 18px; color: var(--ink); }
+.launch-panel .learnings li { margin: 4px 0; }

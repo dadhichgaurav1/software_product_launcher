@@ -255,6 +255,7 @@ function renderAnswers() {
         ${set.notes?.length ? `<div class="notes"><strong>Before you submit:</strong><ul>${set.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
         ${set.answers.map((a) => answerRow(set.site_id, a)).join("")}
         ${site.url ? `<p class="hint">Open <a href="${esc(site.url)}" target="_blank">${esc(site.name)}</a>, then use the extension's “Fill This Page”.</p>` : ""}
+        ${launchPanel(set.site_id)}
       </div>`;
     div.querySelector(".answer-head").addEventListener("click", (e) => {
       if (e.target.classList.contains("copy-btn") || e.target.classList.contains("open-fill")) return;
@@ -263,6 +264,9 @@ function renderAnswers() {
     div.querySelector(".copy-btn").addEventListener("click", () => copyAll(set, div));
     div.querySelector(".open-fill").addEventListener("click", (e) => { e.stopPropagation(); launchFill(set.site_id); });
     div.querySelectorAll("textarea.a-edit").forEach(wireEditor);
+    const lp = div.querySelector(".launch-panel");
+    lp.querySelector(".mark-launched").addEventListener("click", (e) => { e.preventDefault(); markLaunched(set.site_id, lp); });
+    lp.querySelector(".log-outcome").addEventListener("click", (e) => { e.preventDefault(); logOutcome(set.site_id, lp); });
     wrap.appendChild(div);
   });
 }
@@ -323,6 +327,63 @@ function copyAll(set, div) {
   const btn = div.querySelector(".copy-btn");
   btn.textContent = "Copied!";
   setTimeout(() => (btn.textContent = "Copy all"), 1500);
+}
+
+// ---- post-launch learning loop -------------------------------------------
+function launchPanel(siteId) {
+  return `
+    <details class="launch-panel">
+      <summary>📈 After launch — log the outcome &amp; learn for next time</summary>
+      <div class="launch-body">
+        <button class="mark-launched ghost" type="button" data-site="${esc(siteId)}">Mark launched</button>
+        <div class="outcome-form">
+          <select class="o-status" title="Status">
+            <option value="featured">Featured</option>
+            <option value="live" selected>Live</option>
+            <option value="submitted">Submitted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <input class="o-points" type="number" min="0" placeholder="upvotes / points" />
+          <input class="o-signups" type="number" min="0" placeholder="signups" />
+          <input class="o-notes" type="text" placeholder="notes — rank, sentiment…" />
+          <button class="log-outcome primary" type="button" data-site="${esc(siteId)}">Log outcome</button>
+        </div>
+        <div class="learnings" data-learnings hidden></div>
+      </div>
+    </details>`;
+}
+
+async function markLaunched(siteId, panel) {
+  try {
+    await api("/api/launch", { method: "POST", body: JSON.stringify({ url: state.product.url, site_id: siteId }) });
+    showLearnings(panel, ["Launch snapshot saved — log the outcome once you have results."]);
+  } catch (e) { showLearnings(panel, ["Error: " + e.message]); }
+}
+
+async function logOutcome(siteId, panel) {
+  const num = (sel) => { const v = parseInt(panel.querySelector(sel).value, 10); return Number.isNaN(v) ? undefined : v; };
+  const body = { url: state.product.url, site_id: siteId, status: panel.querySelector(".o-status").value };
+  const points = num(".o-points"); if (points !== undefined) body.points = points;
+  const signups = num(".o-signups"); if (signups !== undefined) body.signups = signups;
+  const notes = panel.querySelector(".o-notes").value.trim(); if (notes) body.notes = notes;
+  const btn = panel.querySelector(".log-outcome"); btn.disabled = true; btn.textContent = "Reasoning…";
+  try {
+    const res = await api("/api/outcome", { method: "POST", body: JSON.stringify(body) });
+    const items = (res.learnings && res.learnings.length) ? res.learnings
+      : ["Logged. Gather more signal (points/signups) for richer learnings."];
+    showLearnings(panel, items);
+  } catch (e) {
+    showLearnings(panel, ["Error: " + e.message]);
+  } finally {
+    btn.disabled = false; btn.textContent = "Log outcome";
+  }
+}
+
+function showLearnings(panel, items) {
+  const box = panel.querySelector("[data-learnings]");
+  box.hidden = false;
+  box.innerHTML = "<strong>Learnings — fed into your next launch</strong><ul>"
+    + items.map((t) => `<li>${esc(t)}</li>`).join("") + "</ul>";
 }
 
 // ---- agent chat -----------------------------------------------------------

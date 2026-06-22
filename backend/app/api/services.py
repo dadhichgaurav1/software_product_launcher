@@ -5,6 +5,7 @@ construction can be overridden in tests (offline fetcher) via the factory hooks.
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import re
 
@@ -15,15 +16,28 @@ from ..answers.fit import fit_text
 from ..config import settings
 from ..llm.factory import get_provider
 from ..memory.factory import get_memory
-from ..models import Answer, AnswerSet, ChatMessage, DraftBundle, Product
+from ..models import (
+    Answer,
+    AnswerSet,
+    ChatMessage,
+    CopySnapshot,
+    DraftBundle,
+    Launch,
+    LaunchBook,
+    LaunchOutcome,
+    Learning,
+    Product,
+)
 from ..registry import sites as registry
 from ..store.draft_store import DraftStore
+from ..store.launch_store import LaunchStore
 from ..store.product_store import ProductStore
 
 log = logging.getLogger(__name__)
 
 _store: ProductStore | None = None
 _drafts: DraftStore | None = None
+_launches: LaunchStore | None = None
 
 
 def store() -> ProductStore:
@@ -38,6 +52,13 @@ def drafts() -> DraftStore:
     if _drafts is None:
         _drafts = DraftStore()
     return _drafts
+
+
+def launches() -> LaunchStore:
+    global _launches
+    if _launches is None:
+        _launches = LaunchStore()
+    return _launches
 
 
 # -- factory hooks (overridable in tests) -----------------------------------
@@ -59,10 +80,9 @@ def get_generator() -> AnswerGenerator:
     )
 
 
-def learnings_for_site(site_id: str) -> list[str]:
-    """Post-launch learnings to feed forward into generation. Populated by the
-    learning loop (Phase 3); returns [] until launches have been reflected on."""
-    return []
+def learnings_for_site(site_id: str, limit: int = 5) -> list[str]:
+    """Post-launch learnings (global + this site's) fed forward into generation."""
+    return [ln.text for ln in launches().learnings_for(site_id)][:limit]
 
 
 # -- operations -------------------------------------------------------------
@@ -86,6 +106,7 @@ def get_product(url: str) -> Product | None:
 
 def delete_product(url: str) -> bool:
     drafts().delete(url)
+    launches().delete(url)  # the product's launch book; never the shared global file
     return store().delete(url)
 
 
@@ -360,3 +381,117 @@ def _chat_summary(provider_name, focus, literal, changed, not_found, targets) ->
             "demo URL to <link>”). Set OPENAI_API_KEY for free-form rewriting."
         )
     return "No changes were necessary for that instruction."
+
+
+# -- post-launch learning loop ---------------------------------------------
+def record_launch(url: str, site_id: str) -> Launch:
+    """Snapshot the copy we're submitting to a site (so outcomes attribute to it)."""
+    product = store().load(url)
+    if product is None:
+        raise LookupError("Scan the product first")
+    site = registry.get_site(site_id)
+    if site is None:
+        raise KeyError(site_id)
+    copy = _copy_snapshot(url, site, product)
+    launch = launches().record_launch(url, site_id, site.name, copy)
+    get_memory().remember_outcome(url, site_id, f"Submitted launch: {copy.tagline}", {"status": "submitted"})
+    return launch
+
+
+def record_outcome(url: str, site_id: str, **fields) -> dict:
+    """Append a measured/user-reported outcome and reflect to derive learnings."""
+    site = registry.get_site(site_id)
+    if site is None:
+        raise KeyError(site_id)
+    if store().load(url) is None:
+        raise LookupError("Scan the product first")
+    clean = {k: v for k, v in fields.items() if v not in (None, "")}
+    outcome = LaunchOutcome(site_id=site_id, **clean)
+    launch = launches().add_outcome(url, site_id, outcome)
+    get_memory().remember_outcome(url, site_id, _outcome_summary(outcome), outcome.model_dump())
+    learnings = reflect(url, site_id)
+    return {"launch": launch.model_dump(), "learnings": [ln.text for ln in learnings]}
+
+
+def reflect(url: str, site_id: str) -> list[Learning]:
+    """Run after-action reasoning over a launch's copy + outcomes → learnings."""
+    product = store().load(url)
+    site = registry.get_site(site_id)
+    launch = launches().load(url).launches.get(site_id)
+    if product is None or site is None or launch is None:
+        return []
+    texts = get_provider().extract_learnings(
+        product=product, site=site, copy=launch.submitted_copy, outcomes=launch.outcomes
+    )
+    learnings = [
+        Learning(id=_learning_id(site_id, t), scope="site", site_id=site_id, text=t.strip())
+        for t in texts
+        if t and t.strip()
+    ]
+    if learnings:
+        launches().add_learnings(url, learnings)
+        get_memory().remember_learnings(url, site_id, [ln.text for ln in learnings])
+    return learnings
+
+
+def get_launches(url: str) -> LaunchBook:
+    return launches().load(url)
+
+
+def learnings_payload(url: str, site_id: str = "") -> dict:
+    book = launches().load(url)
+    feed = launches().learnings_for(site_id) if site_id else []
+    return {
+        "product": [ln.model_dump() for ln in book.learnings],
+        "feed_forward": [ln.model_dump() for ln in feed],
+    }
+
+
+def _learning_id(site_id: str, text: str) -> str:
+    return f"{site_id}-{hashlib.sha1(text.encode()).hexdigest()[:8]}"
+
+
+def _outcome_summary(o: LaunchOutcome) -> str:
+    bits: list[str] = [o.status]
+    if o.rank:
+        bits.append(f"rank #{o.rank}")
+    if o.points:
+        bits.append(f"{o.points} points")
+    if o.comments:
+        bits.append(f"{o.comments} comments")
+    if o.signups:
+        bits.append(f"{o.signups} signups")
+    if o.sentiment:
+        bits.append(f"{o.sentiment} sentiment")
+    if o.notes:
+        bits.append(o.notes)
+    return ", ".join(str(b) for b in bits if b)
+
+
+def _copy_snapshot(url: str, site, product: Product) -> CopySnapshot:
+    """Capture the copy submitted to a site — the edited draft where present,
+    otherwise the product's understanding."""
+    snap = CopySnapshot(
+        tagline=product.tagline,
+        description_short=product.description_short,
+        description_long=product.description_long,
+        category=(product.categories[0] if product.categories else ""),
+        website=product.canonical_url or product.url,
+    )
+    aset = drafts().get_set(url, site.id)
+    if aset is not None:
+        for a in aset.answers:
+            if not a.value:
+                continue
+            hay = f"{a.question_id} {a.label}".lower()
+            if any(k in hay for k in ("tagline", "headline", "pitch", "one-liner", "one liner", "slogan")):
+                snap.tagline = a.value
+            elif any(k in hay for k in ("description", "desc", "summary", "about", "overview")):
+                if a.type == "textarea" or len(a.value) > len(snap.description_short):
+                    snap.description_long = a.value
+                else:
+                    snap.description_short = a.value
+            elif any(k in hay for k in ("categor", "topic")):
+                snap.category = a.value
+            snap.key_fields[a.question_id] = a.value[:200]
+    return snap

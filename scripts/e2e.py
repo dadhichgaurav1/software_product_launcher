@@ -166,6 +166,21 @@ def main() -> int:
     print(f"   {total_filled}/{total_fields} fields auto-filled across all 20 sites "
           f"({100*total_filled//total_fields}%)")
 
+    section("10. Post-launch learning loop (capture → reason → learn → feed forward)")
+    ln = client.post("/api/launch", json={"url": BASE, "site_id": "devhunt"}).json()
+    check(bool(ln["submitted_copy"]["tagline"]), "launch snapshot captured the submitted copy")
+    out = client.post("/api/outcome", json={
+        "url": BASE, "site_id": "devhunt", "status": "featured", "rank": 3, "points": 150, "signups": 0,
+    }).json()
+    print(f"   learnings derived: {out['learnings']}")
+    check(len(out["learnings"]) > 0, "logging an outcome produced after-action learnings")
+    feed = client.get("/api/learnings", params={"url": BASE, "site_id": "devhunt"}).json()
+    check(len(feed["feed_forward"]) > 0, "learnings persisted to the feed-forward store")
+    regen = client.post("/api/generate", json={"url": BASE, "site_ids": ["devhunt"], "regenerate": True}).json()
+    check(regen["count"] == 1, "next generation runs with the learning fed into best-practices")
+    book = client.get("/api/launches", params={"url": BASE}).json()
+    check("devhunt" in book["launches"], "launch book records the launch + its outcomes")
+
     print("\n" + ("=" * 56))
     if failures:
         print(f"FAILED — {len(failures)} check(s) did not pass:")

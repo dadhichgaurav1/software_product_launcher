@@ -191,3 +191,67 @@ class DraftBundle(BaseModel):
     updated_at: str = Field(default_factory=_now)
     answer_sets: dict[str, AnswerSet] = Field(default_factory=dict)
     chat: list[ChatMessage] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Post-launch learning loop (capture → reason → learn → feed the next launch)
+# ---------------------------------------------------------------------------
+class CopySnapshot(BaseModel):
+    """The copy we submitted to a site, captured so learnings can attribute to it."""
+
+    tagline: str = ""
+    description_short: str = ""
+    description_long: str = ""
+    category: str = ""
+    website: str = ""
+    key_fields: dict[str, str] = Field(default_factory=dict)
+
+
+class LaunchOutcome(BaseModel):
+    """A measured (or user-reported) result for a launch on one site."""
+
+    site_id: str
+    status: str = "submitted"  # submitted | live | featured | rejected | removed
+    rank: Optional[int] = None
+    points: Optional[int] = None
+    comments: Optional[int] = None
+    referral_clicks: Optional[int] = None
+    signups: Optional[int] = None
+    sentiment: str = ""  # positive | mixed | negative | ""
+    notes: str = ""
+    observed_at: str = Field(default_factory=_now)
+    source: str = "manual"  # manual | hn | analytics
+
+
+class Launch(BaseModel):
+    """One product's launch on one site: the copy used + its outcomes over time."""
+
+    product_url: str
+    site_id: str
+    site_name: str = ""
+    submitted_at: str = Field(default_factory=_now)
+    status: str = "submitted"
+    submitted_copy: CopySnapshot = Field(default_factory=CopySnapshot)
+    outcomes: list[LaunchOutcome] = Field(default_factory=list)
+
+
+class Learning(BaseModel):
+    """A reusable, after-action insight that feeds forward into future launches."""
+
+    id: str
+    scope: str = "site"  # "site" | "global"
+    site_id: Optional[str] = None
+    text: str = ""
+    evidence: str = ""
+    confidence: str = "medium"  # low | medium | high
+    created_at: str = Field(default_factory=_now)
+    source: str = "reflection"  # reflection | manual
+
+
+class LaunchBook(BaseModel):
+    """All launches + derived learnings for one product URL."""
+
+    product_url: str
+    updated_at: str = Field(default_factory=_now)
+    launches: dict[str, Launch] = Field(default_factory=dict)
+    learnings: list[Learning] = Field(default_factory=list)

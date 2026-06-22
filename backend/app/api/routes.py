@@ -39,6 +39,24 @@ class ChatRequest(BaseModel):
     site_ids: list[str] | None = None  # None/empty = all drafts
 
 
+class LaunchRequest(BaseModel):
+    url: str
+    site_id: str
+
+
+class OutcomeRequest(BaseModel):
+    url: str
+    site_id: str
+    status: str = "submitted"
+    rank: int | None = None
+    points: int | None = None
+    comments: int | None = None
+    referral_clicks: int | None = None
+    signups: int | None = None
+    sentiment: str = ""
+    notes: str = ""
+
+
 # -- meta -------------------------------------------------------------------
 @router.get("/health")
 def health():
@@ -162,6 +180,48 @@ def chat(req: ChatRequest):
 @router.get("/chat/history")
 def chat_history(url: str = Query(...)):
     return {"chat": [m.model_dump() for m in services.get_drafts(url).chat]}
+
+
+# -- post-launch learning loop ---------------------------------------------
+@router.post("/launch")
+def launch(req: LaunchRequest):
+    """Snapshot the copy being submitted to a site (start of a launch)."""
+    try:
+        ln = services.record_launch(req.url, req.site_id)
+    except KeyError:
+        raise HTTPException(404, f"Unknown site '{req.site_id}'")
+    except LookupError as exc:
+        raise HTTPException(404, str(exc))
+    return ln.model_dump()
+
+
+@router.post("/outcome")
+def outcome(req: OutcomeRequest):
+    """Log a post-launch outcome; returns the learnings derived from it."""
+    try:
+        result = services.record_outcome(
+            req.url, req.site_id,
+            status=req.status, rank=req.rank, points=req.points, comments=req.comments,
+            referral_clicks=req.referral_clicks, signups=req.signups,
+            sentiment=req.sentiment, notes=req.notes,
+        )
+    except KeyError:
+        raise HTTPException(404, f"Unknown site '{req.site_id}'")
+    except LookupError as exc:
+        raise HTTPException(404, str(exc))
+    return result
+
+
+@router.get("/launches")
+def launches(url: str = Query(...)):
+    """A product's launch book (launches + outcomes + learnings)."""
+    return services.get_launches(url).model_dump()
+
+
+@router.get("/learnings")
+def learnings(url: str = Query(...), site_id: str = Query("")):
+    """Learnings for a product (and the feed-forward set for a given site)."""
+    return services.learnings_payload(url, site_id)
 
 
 @router.get("/answers/{site_id}")
