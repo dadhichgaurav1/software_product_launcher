@@ -50,19 +50,25 @@ def main() -> int:
     mem.remember_instruction(url, "Always lead with the time-saving benefit.", "all drafts", "noted")
     mem.remember_learnings(url, "devhunt", ["Benefit-led taglines with one emoji outperform on DevHunt."])
 
-    # Ingestion is asynchronous on the Synap side; give it a moment.
-    time.sleep(3)
+    # Ingestion is asynchronous on the Synap side; poll recall with backoff.
+    print("-> waiting for async ingestion, then recall (up to ~30s) ...")
+    query = "what tone and benefits should the taglines use?"
+    lines = []
+    for attempt in range(1, 7):
+        time.sleep(5)
+        lines = mem.recall(url, query=query, site_id="devhunt")
+        if lines:
+            break
+        print(f"   attempt {attempt}: nothing recalled yet, retrying…")
 
-    print("-> recall('what tone and benefits should the taglines use?') ...")
-    lines = mem.recall(url, query="what tone and benefits should the taglines use?", site_id="devhunt")
     if lines:
-        print("RECALLED:")
+        print("\nRECALLED:")
         for ln in lines:
             print("  •", ln)
-        print("\nSYNAP SMOKE PASSED ✅")
+        print("\nSYNAP SMOKE PASSED ✅ — live ingest + recall round-trip works.")
         return 0
-    print("\nNo memories recalled yet (ingestion may still be processing). "
-          "Re-run in a few seconds; the calls themselves succeeded.")
+    print("\nIngestion calls succeeded but nothing was recalled within ~30s "
+          "(Synap is eventually consistent). Re-run in a moment to see recall.")
     return 0
 
 
